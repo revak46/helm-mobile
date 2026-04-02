@@ -2,204 +2,177 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>HypeBoard — The Mood Engine</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;overflow:hidden;background:#05050e;font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
-
-#stage{position:relative;width:100vw;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
-
-/* Ambient grid */
-#stage::before{
-  content:'';position:absolute;inset:0;
-  background-image:
-    linear-gradient(rgba(200,169,110,0.02) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(200,169,110,0.02) 1px,transparent 1px);
-  background-size:52px 52px;
-  animation:gridShift 80s linear infinite;
-  pointer-events:none;
-}
-@keyframes gridShift{0%{background-position:0 0}100%{background-position:52px 52px}}
-
-/* Mood glow — changes per mood */
-#mood-glow{
-  position:absolute;inset:0;
-  background:radial-gradient(ellipse at 50% 40%,var(--glow) 0%,transparent 60%);
-  opacity:0.6;transition:all 1.2s ease;pointer-events:none;
+html{background:#05050e;color:#e0ddd6;font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+body{
+  min-height:100dvh;display:flex;flex-direction:column;align-items:center;
+  padding:env(safe-area-inset-top,20px) 16px calc(env(safe-area-inset-bottom,20px) + 16px);
+  overflow-x:hidden;-webkit-tap-highlight-color:transparent;
 }
 
-/* Header */
-#header{
-  position:absolute;top:24px;left:50%;transform:translateX(-50%);
-  text-align:center;z-index:10;
+/* Ambient glow — shifts per mood */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 50% 35%,var(--glow,rgba(212,132,90,0.06)) 0%,transparent 60%);
+  transition:background 1s ease;
+}
+
+/* ── Header ── */
+.header{
+  text-align:center;margin-top:clamp(28px,6dvh,48px);position:relative;z-index:1;
   opacity:0;animation:fadeDown .8s ease .2s forwards;
 }
-#header h1{
-  font-size:clamp(28px,6vw,44px);font-weight:300;letter-spacing:.2em;color:#e0ddd6;
-}
-#header h1 strong{font-weight:700;color:#c8a96e}
-#header p{
-  font-size:10px;letter-spacing:.28em;text-transform:uppercase;
-  color:rgba(224,221,214,.3);margin-top:4px;
-}
-@keyframes fadeDown{from{opacity:0;transform:translateX(-50%) translateY(-12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.header h1{font-size:clamp(30px,8vw,42px);font-weight:300;letter-spacing:.18em;color:#e0ddd6}
+.header h1 strong{font-weight:700;color:#c8a96e}
+.header p{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:rgba(224,221,214,.28);margin-top:5px}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 
-/* Mood ring */
-#mood-ring{
-  position:relative;display:flex;gap:clamp(6px,1.5vw,14px);
-  margin-top:80px;z-index:5;
-  opacity:0;animation:fadeUp .7s ease .6s forwards;
+/* ── Mood selector ── */
+.mood-ring{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+  width:100%;max-width:320px;margin-top:clamp(20px,4dvh,36px);
+  position:relative;z-index:1;
+  opacity:0;animation:fadeUp .7s ease .5s forwards;
 }
 .mood-btn{
-  appearance:none;background:rgba(255,255,255,.04);
-  border:1.5px solid rgba(255,255,255,.08);border-radius:16px;
-  padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:5px;
-  cursor:pointer;transition:all .35s ease;min-width:60px;
+  appearance:none;background:rgba(255,255,255,.03);
+  border:1.5px solid rgba(255,255,255,.07);border-radius:14px;
+  padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;
+  cursor:pointer;transition:all .3s ease;
+  -webkit-tap-highlight-color:transparent;
 }
-.mood-btn:hover,.mood-btn.active{
+.mood-btn.active{
   border-color:var(--c);background:rgba(255,255,255,.06);
-  box-shadow:0 0 24px color-mix(in srgb,var(--c) 25%,transparent);
-  transform:translateY(-3px);
+  box-shadow:0 0 20px color-mix(in srgb,var(--c) 20%,transparent);
 }
-.mood-btn .mi{font-size:22px;transition:transform .3s}
-.mood-btn:hover .mi,.mood-btn.active .mi{transform:scale(1.15)}
-.mood-btn .ml{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:rgba(224,221,214,.45);transition:color .3s}
+.mood-btn .mi{font-size:22px;transition:transform .25s}
+.mood-btn.active .mi{transform:scale(1.12)}
+.mood-btn .ml{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:rgba(224,221,214,.4);transition:color .25s}
 .mood-btn.active .ml{color:#e0ddd6}
 
-/* Card area */
-#card-stage{
-  position:relative;width:min(380px,88vw);height:min(260px,50vh);
-  margin-top:28px;z-index:5;perspective:800px;
+/* ── Card stage ── */
+.card-stage{
+  position:relative;width:100%;max-width:360px;
+  aspect-ratio:3/2;min-height:200px;
+  margin-top:clamp(20px,4dvh,32px);
+  z-index:1;
 }
 .quote-card{
-  position:absolute;inset:0;border-radius:20px;
-  background:rgba(13,13,26,.85);backdrop-filter:blur(16px);
-  border:1px solid rgba(255,255,255,.08);
+  position:absolute;inset:0;border-radius:18px;
+  background:rgba(13,13,26,.88);backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.07);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:32px 28px;text-align:center;
-  opacity:0;transform:translateX(60px) scale(.92);
-  transition:all .55s cubic-bezier(.22,1,.36,1);
+  padding:28px 24px;text-align:center;
+  will-change:transform,opacity;
+  transition:all .5s cubic-bezier(.22,1,.36,1);
   pointer-events:none;
+  opacity:0;transform:translateX(50px) scale(.94);
 }
 .quote-card.center{opacity:1;transform:translateX(0) scale(1);pointer-events:auto}
-.quote-card.left{opacity:0;transform:translateX(-60px) scale(.92)}
-.quote-card.right{opacity:0;transform:translateX(60px) scale(.92)}
+.quote-card.left{opacity:0;transform:translateX(-50px) scale(.94)}
 
 .quote-text{
-  font-size:clamp(14px,3.2vw,19px);font-weight:300;line-height:1.65;
-  color:#e0ddd6;letter-spacing:.02em;
-  max-width:320px;
+  font-size:clamp(15px,3.8vw,18px);font-weight:300;line-height:1.7;
+  color:#e0ddd6;letter-spacing:.01em;max-width:300px;
 }
 .quote-attr{
-  margin-top:14px;font-size:10px;letter-spacing:.14em;
-  text-transform:uppercase;color:rgba(224,221,214,.3);
+  margin-top:14px;font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:rgba(224,221,214,.28);
 }
-.quote-mood-tag{
+.quote-mood{
+  margin-top:10px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+  padding:5px 14px;border-radius:99px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
+}
+
+/* ── Dots + hint ── */
+.card-dots{
+  display:flex;gap:7px;margin-top:16px;z-index:1;
+  opacity:0;animation:fadeUp .6s ease 1s forwards;
+}
+.cdot{
+  width:7px;height:7px;border-radius:50%;background:rgba(224,221,214,.1);
+  transition:all .3s;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.cdot.active{background:var(--accent,#d4845a);box-shadow:0 0 8px var(--accent,#d4845a)}
+.swipe-hint{
   margin-top:10px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;
-  padding:4px 12px;border-radius:99px;
-  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-  color:rgba(224,221,214,.35);
+  color:rgba(224,221,214,.18);z-index:1;
+  opacity:0;animation:fadeUp .5s ease 1.3s forwards;
 }
 
-/* Swipe hint */
-#swipe-hint{
-  margin-top:16px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;
-  color:rgba(224,221,214,.2);z-index:5;
-  opacity:0;animation:fadeUp .6s ease 1.4s forwards;
+/* ── Navigation ── */
+.nav-row{
+  display:flex;gap:10px;margin-top:28px;flex-wrap:wrap;justify-content:center;z-index:1;
+  opacity:0;animation:fadeUp .5s ease 1.5s forwards;
 }
+.nav-pill{
+  font-size:10px;letter-spacing:.06em;color:#c8a96e;
+  text-decoration:none;padding:10px 18px;border-radius:999px;
+  border:1px solid rgba(200,169,110,.2);transition:border-color .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.nav-pill:active{border-color:rgba(200,169,110,.45)}
 
-/* Card dots */
-#card-dots{
-  display:flex;gap:6px;margin-top:12px;z-index:5;
-  opacity:0;animation:fadeUp .6s ease 1.2s forwards;
-}
-.cdot{width:6px;height:6px;border-radius:50%;background:rgba(224,221,214,.12);transition:all .3s}
-.cdot.active{background:var(--accent);box-shadow:0 0 8px var(--accent)}
-
-/* Bottom nav */
-#nav{
-  position:absolute;bottom:20px;display:flex;gap:14px;z-index:10;
-  opacity:0;animation:fadeUp .6s ease 1.6s forwards;
-}
-.nav-link{
-  appearance:none;background:transparent;
-  border:1px solid rgba(200,169,110,.2);border-radius:999px;
-  padding:8px 18px;font-size:10px;font-family:inherit;
-  letter-spacing:.08em;color:#c8a96e;cursor:pointer;text-decoration:none;
-  transition:background .15s,border-color .15s;
-}
-.nav-link:hover{background:rgba(200,169,110,.08);border-color:rgba(200,169,110,.4)}
-
-/* Footer */
-#footer{
-  position:absolute;bottom:54px;
+/* ── Footer ── */
+.footer{
+  margin-top:auto;padding-top:24px;
   font-size:8px;letter-spacing:.14em;text-transform:uppercase;
-  color:rgba(224,221,214,.12);z-index:5;
-  opacity:0;animation:fadeUp .6s ease 1.8s forwards;
+  color:rgba(224,221,214,.1);text-align:center;z-index:1;
+  opacity:0;animation:fadeUp .5s ease 1.7s forwards;
 }
 
-/* Floating particles */
+/* ── Particles ── */
 .particle{
-  position:absolute;width:3px;height:3px;border-radius:50%;
-  background:var(--accent);opacity:0;pointer-events:none;
-  animation:particleFloat linear infinite;
+  position:fixed;width:3px;height:3px;border-radius:50%;
+  background:var(--accent,#d4845a);opacity:0;pointer-events:none;z-index:0;
+  animation:floatUp linear forwards;
 }
-@keyframes particleFloat{
-  0%{opacity:0;transform:translateY(0) scale(0.5)}
-  15%{opacity:0.6}
-  85%{opacity:0.4}
-  100%{opacity:0;transform:translateY(-120px) scale(0.2)}
+@keyframes floatUp{
+  0%{opacity:0;transform:translateY(0) scale(.6)}
+  12%{opacity:.5}
+  80%{opacity:.3}
+  100%{opacity:0;transform:translateY(-100px) scale(.15)}
 }
-
-@keyframes fadeUp{
-  from{opacity:0;transform:translateY(10px)}
-  to{opacity:1;transform:translateY(0)}
-}
-
-@media(prefers-reduced-motion:reduce){
-  *{animation-duration:.1s!important;animation-delay:0s!important;transition-duration:.1s!important}
-}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-delay:0s!important;transition-duration:.01s!important}}
 </style>
 </head>
 <body>
-<div id="stage">
-  <div id="mood-glow" style="--glow:rgba(200,169,110,0.06)"></div>
 
-  <div id="header">
-    <h1>HYPE<strong>BOARD</strong></h1>
-    <p>The mood engine &middot; A.Kembi</p>
-  </div>
-
-  <div id="mood-ring"></div>
-
-  <div id="card-stage"></div>
-
-  <div id="card-dots"></div>
-  <div id="swipe-hint">&larr; swipe or tap arrows &rarr;</div>
-
-  <div id="footer">Helm Intelligence &middot; A.KEMBI &middot; 2026</div>
-
-  <div id="nav">
-    <a class="nav-link" href="index.html">Dashboard</a>
-    <a class="nav-link" href="architecture.html">Architecture</a>
-    <a class="nav-link" href="myatlas.html">MyAtlas</a>
-  </div>
+<div class="header">
+  <h1>HYPE<strong>BOARD</strong></h1>
+  <p>The mood engine &middot; A.Kembi</p>
 </div>
 
-<script>
-/* ── Mood definitions ────────────────────────────── */
-const MOODS = [
-  {id:'fired',   name:'Fired Up',    icon:'🔥', color:'#d4845a', glow:'rgba(212,132,90,0.08)',  energy:'high'},
-  {id:'calm',    name:'Calm',        icon:'🌊', color:'#6a8fad', glow:'rgba(106,143,173,0.08)', energy:'low'},
-  {id:'reflect', name:'Reflective',  icon:'🪞', color:'#8a6abf', glow:'rgba(138,106,191,0.08)', energy:'mid'},
-  {id:'playful', name:'Playful',     icon:'✨', color:'#c8a96e', glow:'rgba(200,169,110,0.08)', energy:'light'},
-  {id:'grateful',name:'Grateful',    icon:'🤲', color:'#5a9e6f', glow:'rgba(90,158,111,0.08)',  energy:'warm'},
-  {id:'driven',  name:'Determined',  icon:'⚡', color:'#e07a5f', glow:'rgba(224,122,95,0.08)',  energy:'high'},
-];
+<div class="mood-ring" id="mood-ring"></div>
+<div class="card-stage" id="card-stage"></div>
+<div class="card-dots" id="card-dots"></div>
+<div class="swipe-hint">&larr; swipe &middot; tap sides &rarr;</div>
 
-/* ── Quote library ───────────────────────────────── */
-const QUOTES = {
+<div class="nav-row">
+  <a class="nav-pill" href="index.html">Dashboard</a>
+  <a class="nav-pill" href="architecture.html">Architecture</a>
+  <a class="nav-pill" href="myatlas.html">MyAtlas</a>
+  <a class="nav-pill" href="digest.html">Digest</a>
+</div>
+
+<div class="footer">Helm Intelligence &middot; A.KEMBI &middot; 2026</div>
+
+<script>
+const MOODS=[
+  {id:'fired',name:'Fired Up',icon:'🔥',color:'#d4845a',glow:'rgba(212,132,90,0.07)'},
+  {id:'calm',name:'Calm',icon:'🌊',color:'#6a8fad',glow:'rgba(106,143,173,0.07)'},
+  {id:'reflect',name:'Reflective',icon:'🪞',color:'#8a6abf',glow:'rgba(138,106,191,0.07)'},
+  {id:'playful',name:'Playful',icon:'✨',color:'#c8a96e',glow:'rgba(200,169,110,0.07)'},
+  {id:'grateful',name:'Grateful',icon:'🤲',color:'#5a9e6f',glow:'rgba(90,158,111,0.07)'},
+  {id:'driven',name:'Determined',icon:'⚡',color:'#e07a5f',glow:'rgba(224,122,95,0.07)'},
+];
+const QUOTES={
   fired:[
     {text:"Hold fast to dreams, for if dreams die, life is a broken-winged bird that cannot fly.",attr:"Langston Hughes"},
     {text:"Not everything that is faced can be changed, but nothing can be changed until it is faced.",attr:"James Baldwin"},
@@ -244,134 +217,69 @@ const QUOTES = {
   ],
 };
 
-/* ── State ───────────────────────────────────────── */
-let activeMood = 'fired';
-let cardIndex = 0;
-let touchStartX = 0;
+let mood='fired',idx=0,tx=0;
+const $ring=document.getElementById('mood-ring'),$stage=document.getElementById('card-stage'),$dots=document.getElementById('card-dots');
 
-/* ── Build mood buttons ──────────────────────────── */
-const ring = document.getElementById('mood-ring');
-MOODS.forEach(m => {
-  const btn = document.createElement('button');
-  btn.className = 'mood-btn' + (m.id === activeMood ? ' active' : '');
-  btn.style.setProperty('--c', m.color);
-  btn.dataset.mood = m.id;
-  btn.innerHTML = `<span class="mi">${m.icon}</span><span class="ml">${m.name}</span>`;
-  btn.addEventListener('click', () => selectMood(m.id));
-  ring.appendChild(btn);
+// Build mood grid
+MOODS.forEach(m=>{
+  const b=document.createElement('button');
+  b.className='mood-btn'+(m.id===mood?' active':'');
+  b.style.setProperty('--c',m.color);b.dataset.mood=m.id;
+  b.innerHTML=`<span class="mi">${m.icon}</span><span class="ml">${m.name}</span>`;
+  b.onclick=()=>pick(m.id);$ring.appendChild(b);
 });
 
-/* ── Select mood ─────────────────────────────────── */
-function selectMood(id) {
-  activeMood = id;
-  cardIndex = 0;
-  const m = MOODS.find(x => x.id === id);
-
-  // Update glow
-  document.getElementById('mood-glow').style.setProperty('--glow', m.glow);
-
-  // Update accent
-  document.documentElement.style.setProperty('--accent', m.color);
-
-  // Update active button
-  document.querySelectorAll('.mood-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.mood === id);
-  });
-
-  // Burst particles
-  spawnParticles(m.color, 8);
-
-  // Render cards
-  renderCards();
+function pick(id){
+  mood=id;idx=0;
+  const m=MOODS.find(x=>x.id===id);
+  document.body.style.setProperty('--glow',m.glow);
+  document.documentElement.style.setProperty('--accent',m.color);
+  document.querySelectorAll('.mood-btn').forEach(b=>b.classList.toggle('active',b.dataset.mood===id));
+  burst(m.color,6);render();
 }
 
-/* ── Render quote cards ──────────────────────────── */
-function renderCards() {
-  const stage = document.getElementById('card-stage');
-  const dots = document.getElementById('card-dots');
-  const quotes = QUOTES[activeMood];
-  const m = MOODS.find(x => x.id === activeMood);
-
-  stage.innerHTML = '';
-  dots.innerHTML = '';
-
-  quotes.forEach((q, i) => {
-    const card = document.createElement('div');
-    card.className = 'quote-card' + (i === cardIndex ? ' center' : i < cardIndex ? ' left' : ' right');
-    card.innerHTML = `
-      <div class="quote-text">${q.text}</div>
-      <div class="quote-attr">— ${q.attr}</div>
-      <div class="quote-mood-tag" style="border-color:${m.color}30;color:${m.color}">${m.icon} ${m.name}</div>
-    `;
-    stage.appendChild(card);
-
-    const dot = document.createElement('div');
-    dot.className = 'cdot' + (i === cardIndex ? ' active' : '');
-    dot.addEventListener('click', () => { cardIndex = i; renderCards(); });
-    dots.appendChild(dot);
+function render(){
+  const qs=QUOTES[mood],m=MOODS.find(x=>x.id===mood);
+  $stage.innerHTML='';$dots.innerHTML='';
+  qs.forEach((q,i)=>{
+    const c=document.createElement('div');
+    c.className='quote-card'+(i===idx?' center':i<idx?' left':' right');
+    c.innerHTML=`<div class="quote-text">${q.text}</div><div class="quote-attr">— ${q.attr}</div><div class="quote-mood" style="border-color:${m.color}25;color:${m.color}">${m.icon} ${m.name}</div>`;
+    $stage.appendChild(c);
+    const d=document.createElement('div');
+    d.className='cdot'+(i===idx?' active':'');
+    d.onclick=()=>{idx=i;render();};
+    $dots.appendChild(d);
   });
 }
 
-/* ── Swipe / keyboard navigation ─────────────────── */
-function nextCard() {
-  const max = QUOTES[activeMood].length - 1;
-  if (cardIndex < max) { cardIndex++; renderCards(); }
-}
-function prevCard() {
-  if (cardIndex > 0) { cardIndex--; renderCards(); }
-}
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextCard();
-  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevCard();
-});
+function next(){if(idx<QUOTES[mood].length-1){idx++;render();}}
+function prev(){if(idx>0){idx--;render();}}
 
 // Touch swipe
-document.getElementById('card-stage').addEventListener('touchstart', e => {
-  touchStartX = e.changedTouches[0].clientX;
-}, {passive:true});
+$stage.addEventListener('touchstart',e=>{tx=e.changedTouches[0].clientX},{passive:true});
+$stage.addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>36){d<0?next():prev();}},{passive:true});
+// Tap halves
+$stage.addEventListener('click',e=>{const r=$stage.getBoundingClientRect(),x=e.clientX-r.left;x>r.width*.6?next():x<r.width*.4?prev():void 0;});
+// Keys
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')next();if(e.key==='ArrowLeft')prev();});
 
-document.getElementById('card-stage').addEventListener('touchend', e => {
-  const dx = e.changedTouches[0].clientX - touchStartX;
-  if (Math.abs(dx) > 40) {
-    if (dx < 0) nextCard(); else prevCard();
-  }
-}, {passive:true});
-
-// Click halves to navigate
-document.getElementById('card-stage').addEventListener('click', e => {
-  const rect = e.currentTarget.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  if (x > rect.width * 0.6) nextCard();
-  else if (x < rect.width * 0.4) prevCard();
-});
-
-/* ── Particles ───────────────────────────────────── */
-function spawnParticles(color, count) {
-  const stage = document.getElementById('stage');
-  for (let i = 0; i < count; i++) {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    p.style.setProperty('--accent', color);
-    p.style.left = (30 + Math.random() * 40) + '%';
-    p.style.top = (40 + Math.random() * 30) + '%';
-    p.style.animationDuration = (2 + Math.random() * 3) + 's';
-    p.style.animationDelay = (Math.random() * 0.8) + 's';
-    stage.appendChild(p);
-    setTimeout(() => p.remove(), 5500);
+// Particles
+function burst(color,n){
+  for(let i=0;i<n;i++){
+    const p=document.createElement('div');p.className='particle';
+    p.style.setProperty('--accent',color);
+    p.style.left=(25+Math.random()*50)+'%';p.style.top=(35+Math.random()*30)+'%';
+    p.style.animationDuration=(2+Math.random()*2.5)+'s';
+    p.style.animationDelay=(Math.random()*.6)+'s';
+    document.body.appendChild(p);setTimeout(()=>p.remove(),5000);
   }
 }
+setInterval(()=>{burst(MOODS.find(x=>x.id===mood).color,2)},4500);
 
-/* ── Ambient particle loop ───────────────────────── */
-setInterval(() => {
-  const m = MOODS.find(x => x.id === activeMood);
-  spawnParticles(m.color, 2);
-}, 4000);
-
-/* ── Init ────────────────────────────────────────── */
-document.documentElement.style.setProperty('--accent', '#d4845a');
-renderCards();
-spawnParticles('#d4845a', 6);
+// Init
+document.documentElement.style.setProperty('--accent','#d4845a');
+render();burst('#d4845a',4);
 </script>
 </body>
 </html>

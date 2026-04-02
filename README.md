@@ -13,6 +13,7 @@ Helm is a signal-driven intelligence layer that turns daily noise into structure
 | [**Live Dashboard**](https://revak46.github.io/helm-mobile/) | Pillar momentum, arcs, suggestions, AI digest | Live |
 | [**Architecture**](https://revak46.github.io/helm-mobile/architecture.html) | Interactive system diagram with animated pipeline | Live |
 | [**MyAtlas**](https://revak46.github.io/helm-mobile/myatlas.html) | The primary interface — orbital dial showcase | Live |
+| [**Digest**](https://revak46.github.io/helm-mobile/digest.html) | Daily AI intelligence briefing with live data | Live |
 | [**HypeBoard**](https://revak46.github.io/helm-mobile/hypeboard.html) | Mood engine — swipeable quotes, vibes, energy | Live |
 | [**Pulse**](PULSE.md) | Daily intention cards for the family | Live |
 | [**MixFlow**](MIXFLOW.md) | Audio intelligence — playlists by vibe | Planning |
