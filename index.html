@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Helm">
+<meta name="theme-color" content="#0a0a0a">
+<title>Helm</title>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --surface-2: #1c1c1c;
+    --border: #2a2a2a;
+    --text: #e8e4dd;
+    --text-muted: #8a8680;
+    --accent: #c8a96e;
+    --accent-dim: rgba(200,169,110,0.15);
+    --hot: #d4845a;
+    --warm: #c8a96e;
+    --cool: #6a8fad;
+    --silent: #4a4a4a;
+    --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+    --font-display: 'SF Pro Display', -apple-system, system-ui, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.5;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  .container {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header h1 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--accent);
+  }
+
+  .header .timestamp {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* Date strip */
+  .date-strip {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 24px;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  /* Pillar cards */
+  .pillar-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .pillar-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pillar-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    border-radius: 3px 0 0 3px;
+  }
+
+  .pillar-card.hot::before { background: var(--hot); }
+  .pillar-card.warm::before { background: var(--warm); }
+  .pillar-card.cool::before { background: var(--cool); }
+  .pillar-card.silent::before { background: var(--silent); }
+
+  .pillar-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .pillar-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .pillar-momentum {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .pillar-card.hot .pillar-momentum { color: var(--hot); }
+  .pillar-card.warm .pillar-momentum { color: var(--warm); }
+  .pillar-card.cool .pillar-momentum { color: var(--cool); }
+  .pillar-card.silent .pillar-momentum { color: var(--silent); }
+
+  .pillar-count {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* Digest card */
+  .digest-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  .digest-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+    white-space: pre-wrap;
+  }
+
+  .digest-empty {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  /* Arc list */
+  .arc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .arc-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .arc-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .arc-badges {
+    display: flex;
+    gap: 4px;
+    margin-left: 8px;
+  }
+
+  .arc-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .arc-count {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-left: 8px;
+    white-space: nowrap;
+  }
+
+  /* Suggestions */
+  .suggestion-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .suggestion-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text);
+  }
+
+  .suggestion-type {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  /* Signal counter */
+  .signal-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .signal-bar .label {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .signal-bar .count {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    margin-top: 32px;
+  }
+
+  .footer-text {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  /* Loading */
+  .loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  .loading .spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 12px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Error */
+  .error {
+    background: var(--surface);
+    border: 1px solid #5a3030;
+    border-radius: 10px;
+    padding: 16px;
+    color: #d48a8a;
+    font-size: 13px;
+    text-align: center;
+  }
+
+  /* Pull to refresh hint */
+  .refresh-hint {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container" id="app">
+  <div class="loading">
+    <div class="spinner"></div>
+    <div>Loading Helm status...</div>
+  </div>
+</div>
+
+<script>
+const STATUS_URL = 'helm-status.json';
+
+async function loadStatus() {
+  const app = document.getElementById('app');
+
+  try {
+    const cacheBuster = `?t=${Date.now()}`;
+    const resp = await fetch(STATUS_URL + cacheBuster);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    render(data);
+  } catch (err) {
+    app.innerHTML = `
+      <div class="header">
+        <h1>HELM</h1>
+      </div>
+      <div class="error">
+        Unable to load status.<br>
+        <span style="font-size:11px;opacity:0.7">${err.message}</span>
+      </div>
+      <div class="refresh-hint">Pull down to refresh</div>
+    `;
+  }
+}
+
+function render(data) {
+  const app = document.getElementById('app');
+
+  const pillarsHTML = (data.pillars || []).map(p => {
+    const m = (p.momentum || 'silent').toLowerCase();
+    return `
+      <div class="pillar-card ${m}">
+        <div class="pillar-name">${esc(p.name)}</div>
+        <div class="pillar-meta">
+          <span class="pillar-momentum">${esc(p.momentum || 'Silent')}</span>
+          <span class="pillar-count">${p.signal_count || 0} signals</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  const arcsHTML = (data.arcs || []).map(a => {
+    const badges = (a.pillars || []).map(p =>
+      `<span class="arc-badge">${esc(p)}</span>`
+    ).join('');
+    return `
+      <div class="arc-item">
+        <span class="arc-label">${esc(a.label)}</span>
+        <div class="arc-badges">${badges}</div>
+        <span class="arc-count">${a.signal_count || 0}</span>
+      </div>
+    `;
+  }).join('');
+
+  const suggestionsHTML = (data.suggestions || []).map(s => `
+    <div class="suggestion-item">
+      ${s.type ? `<div class="suggestion-type">${esc(s.type)}</div>` : ''}
+      ${esc(s.text)}
+    </div>
+  `).join('');
+
+  const digestHTML = data.digest
+    ? `<div class="digest-text">${esc(data.digest)}</div>`
+    : `<div class="digest-empty">No digest available yet</div>`;
+
+  app.innerHTML = `
+    <div class="header">
+      <h1>HELM</h1>
+      <span class="timestamp">${esc(data.time || '')}</span>
+    </div>
+
+    <div class="date-strip">${esc(data.date || '')}</div>
+
+    <div class="signal-bar">
+      <span class="label">Total Signals</span>
+      <span class="count">${data.signal_count || 0}</span>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Pillars</div>
+      <div class="pillar-grid">${pillarsHTML || '<div class="digest-empty">No pillar data</div>'}</div>
+    </div>
+
+    ${(data.arcs || []).length ? `
+    <div class="section">
+      <div class="section-label">Active Arcs</div>
+      <div class="arc-list">${arcsHTML}</div>
+    </div>
+    ` : ''}
+
+    ${(data.suggestions || []).length ? `
+    <div class="section">
+      <div class="section-label">Suggestions</div>
+      <div class="suggestion-list">${suggestionsHTML}</div>
+    </div>
+    ` : ''}
+
+    <div class="section">
+      <div class="section-label">Digest</div>
+      <div class="digest-card">${digestHTML}</div>
+    </div>
+
+    <div class="footer">
+      <div class="footer-text">HELM INTELLIGENCE \u00b7 ${esc(data.time || '')}</div>
+    </div>
+
+    <div class="refresh-hint">Pull down to refresh</div>
+  `;
+}
+
+function esc(str) {
+  if (!str) return '';
+  const d = document.createElement('div');
+  d.textContent = String(str);
+  return d.innerHTML;
+}
+
+// Load on start
+loadStatus();
+
+// Refresh on visibility change (switching back to tab)
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) loadStatus();
+});
+</script>
+</body>
+</html>
