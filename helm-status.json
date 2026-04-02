@@ -1,0 +1,72 @@
+{
+  "generated_at": "2026-04-02T11:17:40.802835",
+  "date": "Thursday, April 02, 2026",
+  "time": "11:17 AM",
+  "signal_count": 32,
+  "digest": "",
+  "pillars": [
+    {
+      "name": "Family",
+      "momentum": "silent",
+      "signal_count": 0,
+      "colour": "#888"
+    },
+    {
+      "name": "Travel",
+      "momentum": "hot",
+      "signal_count": 0,
+      "colour": "#888"
+    },
+    {
+      "name": "Photography",
+      "momentum": "hot",
+      "signal_count": 0,
+      "colour": "#888"
+    },
+    {
+      "name": "Growth",
+      "momentum": "hot",
+      "signal_count": 0,
+      "colour": "#888"
+    },
+    {
+      "name": "Finances",
+      "momentum": "silent",
+      "signal_count": 0,
+      "colour": "#888"
+    }
+  ],
+  "arcs": [
+    {
+      "label": "Houston Trip",
+      "signal_count": 6,
+      "pillars": []
+    },
+    {
+      "label": "Photography Gear Audit",
+      "signal_count": 10,
+      "pillars": []
+    },
+    {
+      "label": "Device Inventory",
+      "signal_count": 11,
+      "pillars": []
+    },
+    {
+      "label": "Intentional Curation",
+      "signal_count": 6,
+      "pillars": []
+    },
+    {
+      "label": "DBA Growth",
+      "signal_count": 2,
+      "pillars": []
+    },
+    {
+      "label": "Photography Community",
+      "signal_count": 2,
+      "pillars": []
+    }
+  ],
+  "suggestions": []
+}
