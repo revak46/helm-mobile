@@ -11,10 +11,10 @@ Helm is a signal-driven intelligence layer that turns daily noise into structure
 | Surface | What It Does | Status |
 |---------|-------------|--------|
 | [**Live Dashboard**](https://revak46.github.io/helm-mobile/) | Pillar momentum, arcs, suggestions, AI digest | Live |
-| [**Architecture**](ARCHITECTURE.md) | System diagram, pipeline, agents, services | Docs |
-| [**MyAtlas**](MYATLAS.md) | The primary interface — web + desktop | Live |
+| [**Architecture**](https://revak46.github.io/helm-mobile/architecture.html) | Interactive system diagram with animated pipeline | Live |
+| [**MyAtlas**](https://revak46.github.io/helm-mobile/myatlas.html) | The primary interface — orbital dial showcase | Live |
+| [**HypeBoard**](https://revak46.github.io/helm-mobile/hypeboard.html) | Mood engine — swipeable quotes, vibes, energy | Live |
 | [**Pulse**](PULSE.md) | Daily intention cards for the family | Live |
-| [**HypeBoard**](HYPEBOARD.md) | Mood engine — quotes, vibes, energy | Live |
 | [**MixFlow**](MIXFLOW.md) | Audio intelligence — playlists by vibe | Planning |
 
 ---
@@ -48,7 +48,7 @@ Manual notes   ──┘         │                     │       ──▶  Mo
                         Digest (AI)          State Layer  ──▶  Pulse
 ```
 
-Full architecture with interactive diagrams: **[ARCHITECTURE.md](ARCHITECTURE.md)**
+Full interactive architecture: **[View Pipeline Animation →](https://revak46.github.io/helm-mobile/architecture.html)**
 
 ---
 

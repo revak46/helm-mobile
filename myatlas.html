@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>myATLAS — Your life, mapped with intention</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#05050e;font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+
+#stage{position:relative;width:100vw;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+
+#stage::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 45%,rgba(200,169,110,0.04) 0%,transparent 65%);
+  pointer-events:none;
+}
+
+/* Wordmark */
+#wordmark{
+  text-align:center;line-height:1.1;
+  opacity:0;animation:wordIn .9s cubic-bezier(.16,1,.3,1) .3s forwards;
+}
+#wordmark-main{
+  display:block;font-size:clamp(36px,8vw,64px);font-weight:300;
+  letter-spacing:.22em;color:#e0ddd6;
+}
+#wordmark-main strong{font-weight:600;color:#c8a96e}
+#wordmark-sub{
+  display:block;font-size:clamp(10px,2vw,13px);
+  letter-spacing:.30em;text-transform:uppercase;
+  color:rgba(224,221,214,.35);margin-top:6px;
+}
+@keyframes wordIn{
+  from{opacity:0;letter-spacing:.38em}
+  to{opacity:1;letter-spacing:.22em}
+}
+
+/* Dial */
+#dial-wrap{
+  width:min(280px,65vw);height:min(280px,65vw);
+  margin:32px 0 28px;
+}
+#dial{width:100%;height:100%;overflow:visible}
+
+.tick-ring{
+  transform-origin:100px 100px;
+  opacity:0;animation:dialSpin 1.8s cubic-bezier(.33,1,.68,1) .6s forwards;
+}
+@keyframes dialSpin{
+  from{transform:rotate(-90deg);opacity:0}
+  to{transform:rotate(270deg);opacity:1}
+}
+
+/* Pillar labels */
+#pillar-labels{
+  display:flex;gap:clamp(12px,3vw,24px);flex-wrap:wrap;justify-content:center;
+  opacity:0;animation:fadeUp .7s ease 2s forwards;
+}
+.plbl{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:rgba(224,221,214,.45);
+}
+.plbl .dot{width:8px;height:8px;border-radius:50%;opacity:.7}
+
+/* Tagline */
+#tagline{
+  font-size:clamp(10px,2.2vw,13px);letter-spacing:.16em;
+  text-transform:uppercase;color:rgba(224,221,214,.40);
+  margin-top:24px;
+  opacity:0;animation:fadeUp .7s ease 1.8s forwards;
+}
+
+/* Feature cards */
+#features{
+  display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;justify-content:center;
+  opacity:0;animation:fadeUp .7s ease 2.3s forwards;
+  max-width:440px;
+}
+.feat{
+  background:rgba(224,221,214,.04);border:1px solid rgba(224,221,214,.08);
+  border-radius:10px;padding:10px 14px;text-align:center;min-width:90px;
+}
+.feat-icon{font-size:18px;margin-bottom:4px}
+.feat-name{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#e0ddd6}
+.feat-sub{font-size:9px;color:rgba(224,221,214,.35);margin-top:2px}
+
+/* Links */
+#links{
+  display:flex;gap:16px;margin-top:28px;
+  opacity:0;animation:fadeUp .7s ease 2.6s forwards;
+}
+.link-btn{
+  appearance:none;background:transparent;
+  border:1px solid rgba(200,169,110,.25);
+  border-radius:999px;padding:10px 20px;
+  font-size:11px;font-family:inherit;letter-spacing:.08em;
+  color:#c8a96e;cursor:pointer;text-decoration:none;
+  transition:background .15s,border-color .15s;
+}
+.link-btn:hover{background:rgba(200,169,110,.08);border-color:rgba(200,169,110,.45)}
+
+/* Footer */
+#footer{
+  position:absolute;bottom:20px;
+  font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(224,221,214,.18);
+  opacity:0;animation:fadeUp .7s ease 2.8s forwards;
+}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  #wordmark,.tick-ring,#tagline,#pillar-labels,#features,#links,#footer{
+    animation-duration:.1s!important;animation-delay:0s!important;
+  }
+}
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <div id="wordmark">
+    <span id="wordmark-main">my<strong>ATLAS</strong></span>
+    <span id="wordmark-sub">by A.Kembi</span>
+  </div>
+
+  <div id="dial-wrap">
+    <svg id="dial" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <!-- Accent halo -->
+      <circle cx="100" cy="100" r="94" fill="none" stroke="rgba(200,169,110,0.30)" stroke-width="1" opacity="0.5"/>
+      <!-- Outer ring -->
+      <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(224,221,214,0.15)" stroke-width="1.2"/>
+      <!-- Inner ring -->
+      <circle cx="100" cy="100" r="66" fill="none" stroke="rgba(224,221,214,0.06)" stroke-width="0.8"/>
+
+      <!-- Pillar lane arcs -->
+      <circle cx="100" cy="100" r="64" fill="none" stroke="#c8a96e" stroke-width="5" opacity="0.4"
+        stroke-dasharray="67 335" stroke-dashoffset="0" stroke-linecap="round"/>
+      <circle cx="100" cy="100" r="54" fill="none" stroke="#d4845a" stroke-width="5" opacity="0.4"
+        stroke-dasharray="57 282" stroke-dashoffset="-90" stroke-linecap="round"/>
+      <circle cx="100" cy="100" r="44" fill="none" stroke="#5a9e6f" stroke-width="5" opacity="0.4"
+        stroke-dasharray="46 230" stroke-dashoffset="-180" stroke-linecap="round"/>
+      <circle cx="100" cy="100" r="34" fill="none" stroke="#6a8fad" stroke-width="5" opacity="0.4"
+        stroke-dasharray="36 178" stroke-dashoffset="-265" stroke-linecap="round"/>
+      <circle cx="100" cy="100" r="24" fill="none" stroke="#8a6abf" stroke-width="5" opacity="0.4"
+        stroke-dasharray="25 126" stroke-dashoffset="-350" stroke-linecap="round"/>
+
+      <!-- Tick ring -->
+      <g class="tick-ring">
+        <line x1="100" y1="14" x2="100" y2="25" stroke="rgba(224,221,214,0.22)" stroke-width="2.0" stroke-linecap="round"/>
+        <line x1="139.6" y1="23.3" x2="133.2" y2="33.5" stroke="rgba(224,221,214,0.15)" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="166.7" y1="50.4" x2="158.5" y2="57.0" stroke="rgba(224,221,214,0.15)" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="175" y1="100" x2="164" y2="100" stroke="rgba(224,221,214,0.22)" stroke-width="2.0" stroke-linecap="round"/>
+        <line x1="166.7" y1="149.6" x2="158.5" y2="143.0" stroke="rgba(224,221,214,0.15)" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="139.6" y1="176.7" x2="133.2" y2="166.5" stroke="rgba(224,221,214,0.15)" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="100" y1="186" x2="100" y2="175" stroke="rgba(224,221,214,0.22)" stroke-width="2.0" stroke-linecap="round"/>
+        <line x1="60.4" y1="176.7" x2="66.8" y2="166.5" stroke="rgba(224,221,214,0.15)" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="33.3" y1="149.6" x2="41.5" y2="143.0" stroke="rgba(224,221,214,0.15)" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="25" y1="100" x2="36" y2="100" stroke="rgba(224,221,214,0.22)" stroke-width="2.0" stroke-linecap="round"/>
+        <line x1="33.3" y1="50.4" x2="41.5" y2="57.0" stroke="rgba(224,221,214,0.15)" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="60.4" y1="23.3" x2="66.8" y2="33.5" stroke="rgba(224,221,214,0.15)" stroke-width="1.2" stroke-linecap="round"/>
+      </g>
+
+      <!-- Centre dot -->
+      <circle cx="100" cy="100" r="4" fill="#c8a96e" opacity="0.85"/>
+    </svg>
+  </div>
+
+  <div id="pillar-labels">
+    <div class="plbl"><div class="dot" style="background:#c8a96e"></div>Family</div>
+    <div class="plbl"><div class="dot" style="background:#d4845a"></div>Travel</div>
+    <div class="plbl"><div class="dot" style="background:#5a9e6f"></div>Photography</div>
+    <div class="plbl"><div class="dot" style="background:#6a8fad"></div>Growth</div>
+    <div class="plbl"><div class="dot" style="background:#8a6abf"></div>Finances</div>
+  </div>
+
+  <div id="tagline">Plan your life. One orbit at a time.</div>
+
+  <div id="features">
+    <div class="feat"><div class="feat-icon">◉</div><div class="feat-name">Pods</div><div class="feat-sub">Signal cards</div></div>
+    <div class="feat"><div class="feat-icon">◫</div><div class="feat-name">Week</div><div class="feat-sub">Timeline</div></div>
+    <div class="feat"><div class="feat-icon">◎</div><div class="feat-name">Day</div><div class="feat-sub">Arc dial</div></div>
+    <div class="feat"><div class="feat-icon">⬡</div><div class="feat-name">Helm</div><div class="feat-sub">Intelligence</div></div>
+  </div>
+
+  <div id="links">
+    <a class="link-btn" href="https://myatlas-nine.vercel.app" target="_blank">Open MyAtlas &rarr;</a>
+    <a class="link-btn" href="index.html">Live Status</a>
+  </div>
+
+  <div id="footer">Helm Intelligence &middot; A.KEMBI &middot; 2026</div>
+</div>
+</body>
+</html>

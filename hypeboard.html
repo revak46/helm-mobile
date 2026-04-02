@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>HypeBoard — The Mood Engine</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#05050e;font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+
+#stage{position:relative;width:100vw;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+
+/* Ambient grid */
+#stage::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(200,169,110,0.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(200,169,110,0.02) 1px,transparent 1px);
+  background-size:52px 52px;
+  animation:gridShift 80s linear infinite;
+  pointer-events:none;
+}
+@keyframes gridShift{0%{background-position:0 0}100%{background-position:52px 52px}}
+
+/* Mood glow — changes per mood */
+#mood-glow{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 40%,var(--glow) 0%,transparent 60%);
+  opacity:0.6;transition:all 1.2s ease;pointer-events:none;
+}
+
+/* Header */
+#header{
+  position:absolute;top:24px;left:50%;transform:translateX(-50%);
+  text-align:center;z-index:10;
+  opacity:0;animation:fadeDown .8s ease .2s forwards;
+}
+#header h1{
+  font-size:clamp(28px,6vw,44px);font-weight:300;letter-spacing:.2em;color:#e0ddd6;
+}
+#header h1 strong{font-weight:700;color:#c8a96e}
+#header p{
+  font-size:10px;letter-spacing:.28em;text-transform:uppercase;
+  color:rgba(224,221,214,.3);margin-top:4px;
+}
+@keyframes fadeDown{from{opacity:0;transform:translateX(-50%) translateY(-12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* Mood ring */
+#mood-ring{
+  position:relative;display:flex;gap:clamp(6px,1.5vw,14px);
+  margin-top:80px;z-index:5;
+  opacity:0;animation:fadeUp .7s ease .6s forwards;
+}
+.mood-btn{
+  appearance:none;background:rgba(255,255,255,.04);
+  border:1.5px solid rgba(255,255,255,.08);border-radius:16px;
+  padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:5px;
+  cursor:pointer;transition:all .35s ease;min-width:60px;
+}
+.mood-btn:hover,.mood-btn.active{
+  border-color:var(--c);background:rgba(255,255,255,.06);
+  box-shadow:0 0 24px color-mix(in srgb,var(--c) 25%,transparent);
+  transform:translateY(-3px);
+}
+.mood-btn .mi{font-size:22px;transition:transform .3s}
+.mood-btn:hover .mi,.mood-btn.active .mi{transform:scale(1.15)}
+.mood-btn .ml{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:rgba(224,221,214,.45);transition:color .3s}
+.mood-btn.active .ml{color:#e0ddd6}
+
+/* Card area */
+#card-stage{
+  position:relative;width:min(380px,88vw);height:min(260px,50vh);
+  margin-top:28px;z-index:5;perspective:800px;
+}
+.quote-card{
+  position:absolute;inset:0;border-radius:20px;
+  background:rgba(13,13,26,.85);backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.08);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 28px;text-align:center;
+  opacity:0;transform:translateX(60px) scale(.92);
+  transition:all .55s cubic-bezier(.22,1,.36,1);
+  pointer-events:none;
+}
+.quote-card.center{opacity:1;transform:translateX(0) scale(1);pointer-events:auto}
+.quote-card.left{opacity:0;transform:translateX(-60px) scale(.92)}
+.quote-card.right{opacity:0;transform:translateX(60px) scale(.92)}
+
+.quote-text{
+  font-size:clamp(14px,3.2vw,19px);font-weight:300;line-height:1.65;
+  color:#e0ddd6;letter-spacing:.02em;
+  max-width:320px;
+}
+.quote-attr{
+  margin-top:14px;font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:rgba(224,221,214,.3);
+}
+.quote-mood-tag{
+  margin-top:10px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+  padding:4px 12px;border-radius:99px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  color:rgba(224,221,214,.35);
+}
+
+/* Swipe hint */
+#swipe-hint{
+  margin-top:16px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;
+  color:rgba(224,221,214,.2);z-index:5;
+  opacity:0;animation:fadeUp .6s ease 1.4s forwards;
+}
+
+/* Card dots */
+#card-dots{
+  display:flex;gap:6px;margin-top:12px;z-index:5;
+  opacity:0;animation:fadeUp .6s ease 1.2s forwards;
+}
+.cdot{width:6px;height:6px;border-radius:50%;background:rgba(224,221,214,.12);transition:all .3s}
+.cdot.active{background:var(--accent);box-shadow:0 0 8px var(--accent)}
+
+/* Bottom nav */
+#nav{
+  position:absolute;bottom:20px;display:flex;gap:14px;z-index:10;
+  opacity:0;animation:fadeUp .6s ease 1.6s forwards;
+}
+.nav-link{
+  appearance:none;background:transparent;
+  border:1px solid rgba(200,169,110,.2);border-radius:999px;
+  padding:8px 18px;font-size:10px;font-family:inherit;
+  letter-spacing:.08em;color:#c8a96e;cursor:pointer;text-decoration:none;
+  transition:background .15s,border-color .15s;
+}
+.nav-link:hover{background:rgba(200,169,110,.08);border-color:rgba(200,169,110,.4)}
+
+/* Footer */
+#footer{
+  position:absolute;bottom:54px;
+  font-size:8px;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(224,221,214,.12);z-index:5;
+  opacity:0;animation:fadeUp .6s ease 1.8s forwards;
+}
+
+/* Floating particles */
+.particle{
+  position:absolute;width:3px;height:3px;border-radius:50%;
+  background:var(--accent);opacity:0;pointer-events:none;
+  animation:particleFloat linear infinite;
+}
+@keyframes particleFloat{
+  0%{opacity:0;transform:translateY(0) scale(0.5)}
+  15%{opacity:0.6}
+  85%{opacity:0.4}
+  100%{opacity:0;transform:translateY(-120px) scale(0.2)}
+}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.1s!important;animation-delay:0s!important;transition-duration:.1s!important}
+}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="mood-glow" style="--glow:rgba(200,169,110,0.06)"></div>
+
+  <div id="header">
+    <h1>HYPE<strong>BOARD</strong></h1>
+    <p>The mood engine &middot; A.Kembi</p>
+  </div>
+
+  <div id="mood-ring"></div>
+
+  <div id="card-stage"></div>
+
+  <div id="card-dots"></div>
+  <div id="swipe-hint">&larr; swipe or tap arrows &rarr;</div>
+
+  <div id="footer">Helm Intelligence &middot; A.KEMBI &middot; 2026</div>
+
+  <div id="nav">
+    <a class="nav-link" href="index.html">Dashboard</a>
+    <a class="nav-link" href="architecture.html">Architecture</a>
+    <a class="nav-link" href="myatlas.html">MyAtlas</a>
+  </div>
+</div>
+
+<script>
+/* ── Mood definitions ────────────────────────────── */
+const MOODS = [
+  {id:'fired',   name:'Fired Up',    icon:'🔥', color:'#d4845a', glow:'rgba(212,132,90,0.08)',  energy:'high'},
+  {id:'calm',    name:'Calm',        icon:'🌊', color:'#6a8fad', glow:'rgba(106,143,173,0.08)', energy:'low'},
+  {id:'reflect', name:'Reflective',  icon:'🪞', color:'#8a6abf', glow:'rgba(138,106,191,0.08)', energy:'mid'},
+  {id:'playful', name:'Playful',     icon:'✨', color:'#c8a96e', glow:'rgba(200,169,110,0.08)', energy:'light'},
+  {id:'grateful',name:'Grateful',    icon:'🤲', color:'#5a9e6f', glow:'rgba(90,158,111,0.08)',  energy:'warm'},
+  {id:'driven',  name:'Determined',  icon:'⚡', color:'#e07a5f', glow:'rgba(224,122,95,0.08)',  energy:'high'},
+];
+
+/* ── Quote library ───────────────────────────────── */
+const QUOTES = {
+  fired:[
+    {text:"Hold fast to dreams, for if dreams die, life is a broken-winged bird that cannot fly.",attr:"Langston Hughes"},
+    {text:"Not everything that is faced can be changed, but nothing can be changed until it is faced.",attr:"James Baldwin"},
+    {text:"The beautiful ones are not yet born — but they are coming.",attr:"Ayi Kwei Armah"},
+    {text:"I, too, sing America. I am the darker brother.",attr:"Langston Hughes"},
+    {text:"The fire next time is now. Act accordingly.",attr:"James Baldwin"},
+  ],
+  calm:[
+    {text:"All that we see or seem is but a dream within a dream.",attr:"Edgar Allan Poe"},
+    {text:"Deep into that darkness peering, long I stood there, wondering, fearing.",attr:"Edgar Allan Poe"},
+    {text:"Silence is the sleep that nourishes wisdom.",attr:"Francis Bacon"},
+    {text:"The quieter you become, the more you can hear.",attr:"Rumi"},
+    {text:"In the stillness of your presence, you can feel your own formless and timeless reality.",attr:"Eckhart Tolle"},
+  ],
+  reflect:[
+    {text:"The years teach much which the days never know.",attr:"Ralph Waldo Emerson"},
+    {text:"He who is not everyday conquering some fear has not learned the secret of life.",attr:"Ralph Waldo Emerson"},
+    {text:"We are not makers of history. We are made by history.",attr:"Martin Luther King Jr."},
+    {text:"The unexamined life is not worth living.",attr:"Socrates"},
+    {text:"There is no greater agony than bearing an untold story inside you.",attr:"Maya Angelou"},
+  ],
+  playful:[
+    {text:"Creativity is intelligence having fun.",attr:"Albert Einstein"},
+    {text:"Life is either a daring adventure or nothing at all.",attr:"Helen Keller"},
+    {text:"The only way to do great work is to love what you do.",attr:"Steve Jobs"},
+    {text:"I have not failed. I've just found 10,000 ways that won't work.",attr:"Thomas Edison"},
+    {text:"Imagination is the beginning of creation.",attr:"George Bernard Shaw"},
+  ],
+  grateful:[
+    {text:"When I started counting my blessings, my whole life turned around.",attr:"Willie Nelson"},
+    {text:"Gratitude is not only the greatest of virtues, but the parent of all others.",attr:"Cicero"},
+    {text:"Joy is the simplest form of gratitude.",attr:"Karl Barth"},
+    {text:"Enough is a feast.",attr:"Buddhist Proverb"},
+    {text:"What you are is what you have been. What you'll be is what you do now.",attr:"Buddha"},
+  ],
+  driven:[
+    {text:"I am my best work — a series of road maps, reports, recipes and doodles.",attr:"Audre Lorde"},
+    {text:"If there is no struggle, there is no progress.",attr:"Frederick Douglass"},
+    {text:"A dream doesn't become reality through magic; it takes sweat, determination and hard work.",attr:"Colin Powell"},
+    {text:"The way to get started is to quit talking and begin doing.",attr:"Walt Disney"},
+    {text:"Success is not final, failure is not fatal: it is the courage to continue that counts.",attr:"Winston Churchill"},
+  ],
+};
+
+/* ── State ───────────────────────────────────────── */
+let activeMood = 'fired';
+let cardIndex = 0;
+let touchStartX = 0;
+
+/* ── Build mood buttons ──────────────────────────── */
+const ring = document.getElementById('mood-ring');
+MOODS.forEach(m => {
+  const btn = document.createElement('button');
+  btn.className = 'mood-btn' + (m.id === activeMood ? ' active' : '');
+  btn.style.setProperty('--c', m.color);
+  btn.dataset.mood = m.id;
+  btn.innerHTML = `<span class="mi">${m.icon}</span><span class="ml">${m.name}</span>`;
+  btn.addEventListener('click', () => selectMood(m.id));
+  ring.appendChild(btn);
+});
+
+/* ── Select mood ─────────────────────────────────── */
+function selectMood(id) {
+  activeMood = id;
+  cardIndex = 0;
+  const m = MOODS.find(x => x.id === id);
+
+  // Update glow
+  document.getElementById('mood-glow').style.setProperty('--glow', m.glow);
+
+  // Update accent
+  document.documentElement.style.setProperty('--accent', m.color);
+
+  // Update active button
+  document.querySelectorAll('.mood-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mood === id);
+  });
+
+  // Burst particles
+  spawnParticles(m.color, 8);
+
+  // Render cards
+  renderCards();
+}
+
+/* ── Render quote cards ──────────────────────────── */
+function renderCards() {
+  const stage = document.getElementById('card-stage');
+  const dots = document.getElementById('card-dots');
+  const quotes = QUOTES[activeMood];
+  const m = MOODS.find(x => x.id === activeMood);
+
+  stage.innerHTML = '';
+  dots.innerHTML = '';
+
+  quotes.forEach((q, i) => {
+    const card = document.createElement('div');
+    card.className = 'quote-card' + (i === cardIndex ? ' center' : i < cardIndex ? ' left' : ' right');
+    card.innerHTML = `
+      <div class="quote-text">${q.text}</div>
+      <div class="quote-attr">— ${q.attr}</div>
+      <div class="quote-mood-tag" style="border-color:${m.color}30;color:${m.color}">${m.icon} ${m.name}</div>
+    `;
+    stage.appendChild(card);
+
+    const dot = document.createElement('div');
+    dot.className = 'cdot' + (i === cardIndex ? ' active' : '');
+    dot.addEventListener('click', () => { cardIndex = i; renderCards(); });
+    dots.appendChild(dot);
+  });
+}
+
+/* ── Swipe / keyboard navigation ─────────────────── */
+function nextCard() {
+  const max = QUOTES[activeMood].length - 1;
+  if (cardIndex < max) { cardIndex++; renderCards(); }
+}
+function prevCard() {
+  if (cardIndex > 0) { cardIndex--; renderCards(); }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextCard();
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevCard();
+});
+
+// Touch swipe
+document.getElementById('card-stage').addEventListener('touchstart', e => {
+  touchStartX = e.changedTouches[0].clientX;
+}, {passive:true});
+
+document.getElementById('card-stage').addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(dx) > 40) {
+    if (dx < 0) nextCard(); else prevCard();
+  }
+}, {passive:true});
+
+// Click halves to navigate
+document.getElementById('card-stage').addEventListener('click', e => {
+  const rect = e.currentTarget.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  if (x > rect.width * 0.6) nextCard();
+  else if (x < rect.width * 0.4) prevCard();
+});
+
+/* ── Particles ───────────────────────────────────── */
+function spawnParticles(color, count) {
+  const stage = document.getElementById('stage');
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.setProperty('--accent', color);
+    p.style.left = (30 + Math.random() * 40) + '%';
+    p.style.top = (40 + Math.random() * 30) + '%';
+    p.style.animationDuration = (2 + Math.random() * 3) + 's';
+    p.style.animationDelay = (Math.random() * 0.8) + 's';
+    stage.appendChild(p);
+    setTimeout(() => p.remove(), 5500);
+  }
+}
+
+/* ── Ambient particle loop ───────────────────────── */
+setInterval(() => {
+  const m = MOODS.find(x => x.id === activeMood);
+  spawnParticles(m.color, 2);
+}, 4000);
+
+/* ── Init ────────────────────────────────────────── */
+document.documentElement.style.setProperty('--accent', '#d4845a');
+renderCards();
+spawnParticles('#d4845a', 6);
+</script>
+</body>
+</html>
