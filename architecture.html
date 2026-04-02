@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>⬡ Helm · Intelligence Pipeline</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#05050e;font-family:ui-sans-serif,system-ui,-apple-system,sans-serif}
+
+#stage{position:relative;width:100vw;height:100vh;overflow:hidden}
+#svg-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+#node-layer{position:absolute;inset:0;z-index:2;pointer-events:none}
+
+#stage::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(200,169,110,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(200,169,110,0.025) 1px,transparent 1px);
+  background-size:52px 52px;
+  animation:gridShift 60s linear infinite;
+}
+@keyframes gridShift{0%{background-position:0 0}100%{background-position:52px 52px}}
+
+.foundation{
+  position:absolute;border-radius:32px;
+  border:1px solid rgba(200,169,110,0.08);
+  background:rgba(200,169,110,0.015);
+  backdrop-filter:blur(2px);
+  transition:border-color .8s,box-shadow .8s;
+}
+.foundation.active{border-color:rgba(200,169,110,0.20);box-shadow:0 0 80px rgba(200,169,110,0.05)}
+
+.node{
+  position:absolute;transform:translate(-50%,-50%);
+  border-radius:24px;padding:20px 26px;
+  background:#0d0d1a;
+  border:1.5px solid rgba(255,255,255,0.08);
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  text-align:center;min-width:140px;
+  opacity:0;transform:translate(-50%,-50%) scale(0.85);
+  transition:opacity .6s ease,transform .6s ease,border-color .4s,box-shadow .4s;
+  pointer-events:auto;cursor:pointer;
+}
+.node.visible{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.node.active{border-color:rgba(200,169,110,0.60);box-shadow:0 0 44px rgba(200,169,110,0.18)}
+.node.green-active{border-color:rgba(77,158,106,0.60);box-shadow:0 0 44px rgba(77,158,106,0.18)}
+.node.blue-active{border-color:rgba(90,130,255,0.60);box-shadow:0 0 44px rgba(90,130,255,0.18)}
+.node.purple-active{border-color:rgba(138,106,191,0.60);box-shadow:0 0 44px rgba(138,106,191,0.18)}
+
+.node-icon{font-size:32px;line-height:1}
+.node-name{font-size:14px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:#e0ddd6}
+.node-sub{font-size:10px;letter-spacing:.06em;color:rgba(224,221,214,.38);line-height:1.4}
+.node-port{font-size:10px;letter-spacing:.1em;color:#c8a96e;background:rgba(200,169,110,.10);
+  padding:3px 8px;border-radius:99px;margin-top:3px;border:1px solid rgba(200,169,110,.20)}
+.node-status{width:8px;height:8px;border-radius:50%;background:rgba(224,221,214,.15);margin-top:4px;transition:background .4s,box-shadow .4s}
+.node-status.on{background:#4d9e6a;box-shadow:0 0 8px #4d9e6a}
+.node-status.warm{background:#c8a96e;box-shadow:0 0 8px #c8a96e}
+.node-status.hot{background:#d4845a;box-shadow:0 0 8px #d4845a}
+
+.subnode{
+  position:absolute;transform:translate(-50%,-50%);
+  border-radius:14px;padding:10px 16px;
+  background:#0a0a14;border:1px solid rgba(255,255,255,0.06);
+  display:flex;align-items:center;gap:8px;min-width:110px;
+  opacity:0;transition:opacity .5s,box-shadow .4s;
+  pointer-events:auto;cursor:pointer;
+}
+.subnode.visible{opacity:1}
+.subnode-icon{font-size:16px}
+.subnode-name{font-size:10px;font-weight:700;letter-spacing:.1em;color:#e0ddd6;text-transform:uppercase}
+.subnode-val{font-size:11px;font-weight:600;color:#c8a96e;letter-spacing:.03em;margin-top:1px}
+
+#narrative{
+  position:absolute;top:20px;left:50%;transform:translateX(-50%);
+  background:rgba(5,5,20,0.90);border:1px solid rgba(200,169,110,0.25);
+  border-radius:14px;padding:10px 24px;
+  font-size:12px;letter-spacing:.04em;color:rgba(224,221,214,.72);
+  text-align:center;z-index:10;
+  transition:opacity .4s;min-width:320px;max-width:520px;
+  backdrop-filter:blur(10px);
+}
+#narrative strong{color:#c8a96e;font-weight:600}
+
+#phase-dots{
+  position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
+  display:flex;gap:8px;z-index:10;
+}
+.pdot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.12);transition:background .4s,transform .4s}
+.pdot.active{background:#c8a96e;transform:scale(1.4)}
+
+#title{position:absolute;top:20px;left:28px;z-index:10}
+#title .t1{font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#c8a96e}
+#title .t2{font-size:9px;letter-spacing:.12em;color:rgba(224,221,214,.26);margin-top:3px}
+
+#legend{position:absolute;bottom:20px;right:24px;z-index:10;display:flex;flex-direction:column;gap:6px}
+.leg{display:flex;align-items:center;gap:7px;font-size:9px;letter-spacing:.07em;color:rgba(224,221,214,.35)}
+.leg-line{width:20px;height:2px;border-radius:1px}
+
+.data-label{
+  position:absolute;transform:translate(-50%,-50%);
+  background:rgba(200,169,110,0.10);border:1px solid rgba(200,169,110,0.22);
+  border-radius:7px;padding:3px 9px;
+  font-size:9px;letter-spacing:.06em;color:#c8a96e;
+  opacity:0;transition:opacity .3s;white-space:nowrap;z-index:6;
+}
+.data-label.green{background:rgba(77,158,106,0.08);border-color:rgba(77,158,106,0.22);color:#4d9e6a}
+.data-label.blue{background:rgba(90,130,255,0.08);border-color:rgba(90,130,255,0.22);color:#5a82ff}
+.data-label.purple{background:rgba(138,106,191,0.08);border-color:rgba(138,106,191,0.22);color:#8a6abf}
+.data-label.visible{opacity:1}
+
+.conn-path{fill:none;stroke-width:1.5;opacity:0;transition:opacity .8s}
+.conn-path.visible{opacity:1}
+.conn-path.gold{stroke:rgba(200,169,110,0.25)}
+.conn-path.green{stroke:rgba(77,158,106,0.25)}
+.conn-path.blue{stroke:rgba(90,130,255,0.25)}
+.conn-path.purple{stroke:rgba(138,106,191,0.25)}
+.conn-path.dim{stroke:rgba(255,255,255,0.08)}
+
+.particle{
+  position:absolute;border-radius:50%;pointer-events:none;z-index:5;
+  animation:particleMove linear forwards;
+}
+@keyframes particleMove{
+  0%{opacity:0;offset-distance:0%}
+  8%{opacity:1}92%{opacity:1}
+  100%{opacity:0;offset-distance:100%}
+}
+
+/* ── Info panel ── */
+#info-panel{
+  position:absolute;bottom:60px;left:50%;transform:translateX(-50%);
+  background:rgba(5,5,20,0.92);border:1px solid rgba(200,169,110,0.25);
+  border-radius:16px;padding:16px 24px;
+  max-width:420px;width:90%;z-index:20;
+  backdrop-filter:blur(12px);
+  opacity:0;transform:translateX(-50%) translateY(12px);
+  transition:opacity .3s,transform .3s;
+  pointer-events:none;
+}
+#info-panel.visible{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+#info-panel .info-title{font-size:14px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#c8a96e;margin-bottom:8px}
+#info-panel .info-body{font-size:11px;line-height:1.7;color:rgba(224,221,214,.7);letter-spacing:.02em}
+#info-panel .info-body .tag{display:inline-block;font-size:9px;padding:2px 7px;border-radius:4px;background:rgba(200,169,110,.10);color:#c8a96e;border:1px solid rgba(200,169,110,.18);margin:2px 2px}
+#info-panel .info-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:10px}
+#info-panel .info-row:last-child{border:none}
+.info-key{color:rgba(224,221,214,.4)}
+.info-val{color:#e0ddd6;font-weight:500}
+</style>
+</head>
+<body>
+<div id="stage">
+  <svg id="svg-layer" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="a-gold" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="rgba(200,169,110,0.65)"/></marker>
+      <marker id="a-green" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="rgba(77,158,106,0.65)"/></marker>
+      <marker id="a-blue" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="rgba(90,130,255,0.65)"/></marker>
+      <marker id="a-purple" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="rgba(138,106,191,0.65)"/></marker>
+    </defs>
+  </svg>
+  <div id="node-layer"></div>
+
+  <div id="title">
+    <div class="t1">⬡ Helm · Intelligence Pipeline</div>
+    <div class="t2">Signal Flow · Enrichment · Delivery</div>
+  </div>
+  <div id="narrative"><strong>Initialising pipeline...</strong></div>
+  <div id="phase-dots"></div>
+  <div id="legend">
+    <div class="leg"><div class="leg-line" style="background:rgba(200,169,110,.65)"></div>Signal Flow</div>
+    <div class="leg"><div class="leg-line" style="background:rgba(77,158,106,.65)"></div>Enrichment</div>
+    <div class="leg"><div class="leg-line" style="background:rgba(90,130,255,.65)"></div>Delivery</div>
+    <div class="leg"><div class="leg-line" style="background:rgba(138,106,191,.65)"></div>AI / Agent</div>
+  </div>
+  <div id="info-panel"><div class="info-title"></div><div class="info-body"></div></div>
+</div>
+
+<script>
+const W=()=>window.innerWidth, H=()=>window.innerHeight;
+
+const POS={
+  // Sources (top row)
+  gmail:    [0.20, 0.10],
+  helmcap:  [0.50, 0.10],
+  manual:   [0.80, 0.10],
+  // Capture server (center-top)
+  capture:  [0.50, 0.26],
+  // Pipeline (middle row)
+  enrich:   [0.20, 0.42],
+  suggest:  [0.50, 0.42],
+  digest:   [0.80, 0.42],
+  // State layer (center)
+  arcs:     [0.25, 0.57],
+  bridges:  [0.42, 0.57],
+  colours:  [0.58, 0.57],
+  signals:  [0.75, 0.57],
+  // Surfaces (bottom row)
+  myatlas:  [0.15, 0.74],
+  mobile:   [0.38, 0.74],
+  outbox:   [0.62, 0.74],
+  pulse:    [0.85, 0.74],
+  // Agents (bottom)
+  recon:    [0.25, 0.90],
+  helm:     [0.50, 0.90],
+  dash:     [0.75, 0.90],
+};
+function px(k){return[POS[k][0]*W(),POS[k][1]*H()]}
+
+const svg=document.getElementById('svg-layer');
+const nl=document.getElementById('node-layer');
+
+function makePath(id,x1,y1,x2,y2,cls,curve=0.15){
+  const cx=(x1+x2)/2+(y2-y1)*curve;
+  const cy=(y1+y2)/2-(x2-x1)*curve;
+  const el=document.createElementNS('http://www.w3.org/2000/svg','path');
+  el.setAttribute('id',id);
+  el.setAttribute('d',`M${x1},${y1} Q${cx},${cy} ${x2},${y2}`);
+  el.setAttribute('class',`conn-path ${cls}`);
+  const col=cls.split(' ')[0];
+  if(['gold','green','blue','purple'].includes(col)) el.setAttribute('marker-end',`url(#a-${col})`);
+  svg.appendChild(el);
+}
+
+function makeFoundation(){
+  const f=document.createElement('div');
+  f.id='foundation';f.className='foundation';
+  f.style.cssText=`left:${W()*0.04}px;top:${H()*0.04}px;width:${W()*0.92}px;height:${H()*0.65}px`;
+  const l=document.createElement('div');
+  l.style.cssText='position:absolute;bottom:10px;right:18px;font-size:8px;letter-spacing:.14em;color:rgba(200,169,110,0.18);text-transform:uppercase;font-family:inherit';
+  l.textContent='⬡ Helm Intelligence · Signal → Meaning';
+  f.appendChild(l);
+  nl.prepend(f);
+}
+
+function makeNode(id,x,y,icon,name,sub,port=''){
+  const el=document.createElement('div');
+  el.id=id;el.className='node';el.dataset.nodeId=id;
+  el.style.left=x+'px';el.style.top=y+'px';
+  el.innerHTML=`<div class="node-icon">${icon}</div><div class="node-name">${name}</div><div class="node-sub">${sub}</div>${port?`<div class="node-port">${port}</div>`:''}<div class="node-status" id="${id}-status"></div>`;
+  nl.appendChild(el);
+}
+
+function makeSubnode(id,x,y,icon,name,val=''){
+  const el=document.createElement('div');
+  el.id=id;el.className='subnode';el.dataset.nodeId=id;
+  el.style.left=x+'px';el.style.top=y+'px';
+  el.innerHTML=`<div class="subnode-icon">${icon}</div><div><div class="subnode-name">${name}</div><div class="subnode-val">${val}</div></div>`;
+  nl.appendChild(el);
+}
+
+function makeLabel(id,x,y,text,cls=''){
+  const el=document.createElement('div');
+  el.id=id;el.className=`data-label ${cls}`;
+  el.style.left=x+'px';el.style.top=y+'px';
+  el.textContent=text;
+  nl.appendChild(el);
+}
+
+function spawnParticle(pathId,color,size,dur,delay=0){
+  const path=document.getElementById(pathId);
+  if(!path)return;
+  const d=path.getAttribute('d');
+  if(!d)return;
+  setTimeout(()=>{
+    const p=document.createElement('div');
+    p.className='particle';
+    p.style.cssText=`width:${size}px;height:${size}px;background:${color};box-shadow:0 0 ${size*3}px ${size*1.5}px ${color};offset-path:path('${d}');animation-duration:${dur}ms`;
+    document.getElementById('stage').appendChild(p);
+    p.addEventListener('animationend',()=>p.remove());
+  },delay);
+}
+function stream(pathId,color,size,dur,interval,count=9999){
+  let i=0;
+  const id=setInterval(()=>{spawnParticle(pathId,color,size,dur);if(++i>=count)clearInterval(id)},interval);
+  return id;
+}
+
+function show(id,cls=''){const e=document.getElementById(id);if(e){e.classList.add('visible');if(cls)e.classList.add(cls)}}
+function hide(id,cls=''){const e=document.getElementById(id);if(e){e.classList.remove('visible');if(cls)e.classList.remove(cls)}}
+function addCls(id,c){const e=document.getElementById(id);if(e)e.classList.add(c)}
+function remCls(id,c){const e=document.getElementById(id);if(e)e.classList.remove(c)}
+function setStatus(id,s){const e=document.getElementById(id+'-status');if(e)e.className='node-status '+s}
+
+// ── Narrative ──
+const PHASES=[
+  {txt:`The <strong>intelligence pipeline</strong> — from raw signal to structured meaning.`},
+  {txt:`<strong>Sources</strong> feed the system. Gmail, HelmCapture on iPhone, manual notes and photos.`},
+  {txt:`<strong>Helm Capture</strong> receives everything. Flask on :7777 — the central nervous system.`},
+  {txt:`The pipeline activates: <strong>Enrich</strong> → <strong>Suggest</strong> → <strong>Digest</strong>. Three steps, every hour.`},
+  {txt:`<strong>Enrich</strong> is deterministic — pillar correction, dedup, arc linking. Zero API cost.`},
+  {txt:`<strong>Suggest</strong> detects cross-pillar bridges and generates actionable recommendations.`},
+  {txt:`<strong>Digest</strong> calls Claude Haiku — the only AI step. $0.004 per summary.`},
+  {txt:`The <strong>state layer</strong> persists everything — arcs, bridges, colours, signals. Survives restarts.`},
+  {txt:`Four <strong>surfaces</strong> deliver intelligence: MyAtlas, Mobile Dashboard, Email Digest, Pulse.`},
+  {txt:`<strong>Three agents</strong> govern the system. Helm orchestrates. Recon builds. Dash audits.`},
+  {txt:`All systems live. <strong>Signal flows to meaning</strong> — every hour, automatically.`},
+];
+
+const narrative=document.getElementById('narrative');
+const phaseDots=document.getElementById('phase-dots');
+PHASES.forEach((_,i)=>{const d=document.createElement('div');d.className='pdot'+(i===0?' active':'');phaseDots.appendChild(d)});
+
+function setNarrative(i){
+  narrative.style.opacity='0';
+  setTimeout(()=>{narrative.innerHTML=PHASES[i].txt;narrative.style.opacity='1'},300);
+  document.querySelectorAll('.pdot').forEach((d,j)=>d.classList.toggle('active',j===i));
+}
+
+// ── Node info ──
+const INFO={
+  gmail:{t:'Helm Gmail',b:'<div class="info-row"><span class="info-key">Account</span><span class="info-val">helm@akembi.com</span></div><div class="info-row"><span class="info-key">Schedule</span><span class="info-val">Hourly via launchd</span></div><div class="info-row"><span class="info-key">Scopes</span><span class="info-val">readonly + send</span></div><div class="info-row"><span class="info-key">Classification</span><span class="info-val">11 signal rules</span></div>Google Alerts, newsletters, calendar forwards, flight deals. Each email becomes a classified signal.'},
+  helmcap:{t:'HelmCapture App',b:'<div class="info-row"><span class="info-key">Platform</span><span class="info-val">iPhone · Expo/RN</span></div><div class="info-row"><span class="info-key">Modes</span><span class="info-val">Photo · Voice · Text</span></div><div class="info-row"><span class="info-key">Sync</span><span class="info-val">WiFi auto-sync</span></div>Three capture modes on mobile. Queue locally, sync to Mac Mini on home WiFi.'},
+  manual:{t:'Manual Capture',b:'Direct signal entry via MyAtlas Notes tab or Helm Capture web interface. Structured notes with pillar tagging, photo analysis via Claude Vision.'},
+  capture:{t:'Helm Capture Server',b:'<div class="info-row"><span class="info-key">Port</span><span class="info-val">:7777</span></div><div class="info-row"><span class="info-key">Stack</span><span class="info-val">Flask + Claude Vision</span></div><div class="info-row"><span class="info-key">Version</span><span class="info-val">v0.5.0</span></div>Endpoints: <span class="tag">/analyse</span><span class="tag">/save</span><span class="tag">/signals</span><span class="tag">/digest</span><span class="tag">/refresh</span><span class="tag">/feedback</span>'},
+  enrich:{t:'Enrich Layer',b:'<div class="info-row"><span class="info-key">Type</span><span class="info-val">Deterministic</span></div><div class="info-row"><span class="info-key">Cost</span><span class="info-val">$0</span></div>Pillar correction, dedup, session grouping, arc linking. setdefault pattern guarantees every signal has a complete _enrich block.'},
+  suggest:{t:'Suggest Engine',b:'<div class="info-row"><span class="info-key">Output</span><span class="info-val">suggestions.json</span></div>Cross-pillar bridge detection, event dedup, schedule conflict detection. Generates actionable suggestions from enriched signal patterns.'},
+  digest:{t:'AI Digest',b:'<div class="info-row"><span class="info-key">Model</span><span class="info-val">Claude Haiku</span></div><div class="info-row"><span class="info-key">Cost</span><span class="info-val">~$0.004/call</span></div>Reads HELM.md profile + 30 signals + arcs + momentum. The only AI-powered step in the pipeline.'},
+  arcs:{t:'Arcs',b:'Active narrative arcs — ongoing stories that cluster signals across pillars. Currently 6 active arcs.'},
+  bridges:{t:'Bridges',b:'Cross-pillar connections. When a signal touches two pillars simultaneously, that\'s a bridge. Currently 10 bridges detected.'},
+  colours:{t:'Colours',b:'Pillar momentum — Hot, Warm, Cool, Silent. Updated every refresh cycle. Drives the dashboard pillar cards.'},
+  signals:{t:'Signals',b:'The raw signal store. Every captured, enriched signal lives here. The foundation of everything.'},
+  myatlas:{t:'MyAtlas',b:'<div class="info-row"><span class="info-key">Stack</span><span class="info-val">React + TS + Vite + Tauri</span></div><div class="info-row"><span class="info-key">URL</span><span class="info-val">myatlas-nine.vercel.app</span></div>The primary interface. Pods, Week, Day, and Helm views. Signal cards, AI digest, human reactions.'},
+  mobile:{t:'Mobile Dashboard',b:'<div class="info-row"><span class="info-key">Host</span><span class="info-val">GitHub Pages</span></div><div class="info-row"><span class="info-key">Update</span><span class="info-val">Hourly push</span></div>This ecosystem. Status JSON pushed hourly, rendered as a live dashboard anywhere.'},
+  outbox:{t:'Helm Outbox',b:'<div class="info-row"><span class="info-key">Gate</span><span class="info-val">GitHub label approval</span></div><div class="info-row"><span class="info-key">Poller</span><span class="info-val">Every 15 min</span></div>GitHub-gated email. Drafts as issues, you approve on phone, poller sends via Gmail API. Zero unsupervised outbound.'},
+  pulse:{t:'Pulse',b:'<div class="info-row"><span class="info-key">Schedule</span><span class="info-val">Daily 7am</span></div><div class="info-row"><span class="info-key">Host</span><span class="info-val">Vercel</span></div>Daily intention cards. Warm honey for Ideka, dark bold for Yemi. Deepen → Think → Smile rotation.'},
+  recon:{t:'Recon — Builder',b:'Four-phase execution: Research → Plan → Execute → Report. Builds because craft is the standard.'},
+  helm:{t:'HELM — Core',b:'The orchestrator. Routes context, maintains state, strategic decisions. Not a generic assistant — an intelligence system with identity and principles.'},
+  dash:{t:'Dash — Auditor',b:'Strengthens what ships. Threat surface analysis, dependency chains, confidence scoring. Doesn\'t audit to catch failures — audits to strengthen.'},
+};
+
+const panel=document.getElementById('info-panel');
+document.addEventListener('click',e=>{
+  const node=e.target.closest('[data-node-id]');
+  if(node&&INFO[node.dataset.nodeId]){
+    const d=INFO[node.dataset.nodeId];
+    panel.querySelector('.info-title').textContent=d.t;
+    panel.querySelector('.info-body').innerHTML=d.b;
+    panel.classList.add('visible');
+  } else if(!e.target.closest('#info-panel')){
+    panel.classList.remove('visible');
+  }
+});
+
+// ── Init ──
+let streams=[];
+
+function init(){
+  const p=k=>px(k);
+
+  makeFoundation();
+
+  // Sources
+  makeNode('gmail',...p('gmail'),'✉','Gmail','helm@akembi.com','hourly');
+  makeNode('helmcap',...p('helmcap'),'📱','HelmCapture','iPhone App','');
+  makeNode('manual',...p('manual'),'✎','Manual','Notes · Photos','');
+
+  // Capture
+  makeNode('capture',...p('capture'),'⬡','Helm Capture','Signal Intake',':7777');
+
+  // Pipeline
+  makeNode('enrich',...p('enrich'),'⚙','Enrich','Deterministic','');
+  makeNode('suggest',...p('suggest'),'💡','Suggest','Pattern Match','');
+  makeNode('digest',...p('digest'),'🤖','Digest','Claude Haiku','');
+
+  // State
+  makeSubnode('arcs',...p('arcs'),'◈','Arcs','6 active');
+  makeSubnode('bridges',...p('bridges'),'⟷','Bridges','10 found');
+  makeSubnode('colours',...p('colours'),'◉','Colours','5 pillars');
+  makeSubnode('signals',...p('signals'),'▪','Signals','53 total');
+
+  // Surfaces
+  makeNode('myatlas',...p('myatlas'),'🌐','MyAtlas','Web + Desktop','');
+  makeNode('mobile',...p('mobile'),'📊','Mobile','Dashboard','');
+  makeNode('outbox',...p('outbox'),'📨','Outbox','Email Gate','');
+  makeNode('pulse',...p('pulse'),'✦','Pulse','Daily Cards','');
+
+  // Agents
+  makeNode('recon',...p('recon'),'🔨','Recon','Builder','');
+  makeNode('helm',...p('helm'),'⎈','HELM','Intelligence Core','');
+  makeNode('dash',...p('dash'),'📊','Dash','Auditor','');
+
+  // Labels
+  const mid=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2];
+  const m1=mid(px('capture'),px('enrich'));
+  makeLabel('lbl-refresh',m1[0],m1[1]-14,'/refresh','green');
+  const m2=mid(px('enrich'),px('suggest'));
+  makeLabel('lbl-pipe',m2[0],m2[1]-14,'pipeline','green');
+  const m3=mid(px('suggest'),px('digest'));
+  makeLabel('lbl-ai',m3[0],m3[1]-14,'AI call','purple');
+  const m4=mid(px('gmail'),px('capture'));
+  makeLabel('lbl-fetch',m4[0]+15,m4[1]-10,'fetch','');
+  const m5=mid(px('helmcap'),px('capture'));
+  makeLabel('lbl-sync',m5[0],m5[1]-10,'sync','');
+
+  // SVG paths
+  // Sources → Capture
+  makePath('p-gm-ca',...px('gmail'),...px('capture'),'gold',0.18);
+  makePath('p-hc-ca',...px('helmcap'),...px('capture'),'gold',0.0);
+  makePath('p-mn-ca',...px('manual'),...px('capture'),'gold',-0.18);
+  // Capture → Pipeline
+  makePath('p-ca-en',...px('capture'),...px('enrich'),'green',-0.15);
+  makePath('p-en-su',...px('enrich'),...px('suggest'),'green',0.0);
+  makePath('p-su-di',...px('suggest'),...px('digest'),'purple',0.0);
+  // Pipeline → State
+  makePath('p-en-ar',...px('enrich'),...px('arcs'),'green',-0.08);
+  makePath('p-su-br',...px('suggest'),...px('bridges'),'green',0.08);
+  makePath('p-su-cl',...px('suggest'),...px('colours'),'green',-0.08);
+  makePath('p-ca-si',...px('capture'),...px('signals'),'gold',0.12);
+  // State → Surfaces
+  makePath('p-si-ma',...px('signals'),...px('myatlas'),'blue',-0.18);
+  makePath('p-cl-mb',...px('colours'),...px('mobile'),'blue',0.08);
+  makePath('p-di-ob',...px('digest'),...px('outbox'),'blue',-0.10);
+  makePath('p-cl-pu',...px('colours'),...px('pulse'),'blue',0.15);
+  // Agents
+  makePath('p-hm-re',...px('helm'),...px('recon'),'dim',-0.08);
+  makePath('p-hm-da',...px('helm'),...px('dash'),'dim',0.08);
+
+  runAnimation();
+}
+
+function runAnimation(){
+  const seq=[];let t=0;
+  function at(d,fn){seq.push({t:t+d,fn});t+=d}
+
+  // Phase 0 — Foundation
+  at(400,()=>{setNarrative(0);addCls('foundation','active')});
+  at(2400,()=>{});
+
+  // Phase 1 — Sources
+  at(200,()=>{
+    setNarrative(1);
+    show('gmail');show('helmcap');show('manual');
+    setStatus('gmail','on');setStatus('helmcap','on');
+  });
+  at(2400,()=>{});
+
+  // Phase 2 — Capture
+  at(200,()=>{
+    setNarrative(2);
+    show('p-gm-ca');show('p-hc-ca');show('p-mn-ca');
+    show('lbl-fetch');show('lbl-sync');
+    [0,1,2].forEach(i=>spawnParticle('p-gm-ca','rgba(200,169,110,0.85)',4,700,i*150));
+    [0,1].forEach(i=>spawnParticle('p-hc-ca','rgba(200,169,110,0.85)',4,600,i*200));
+    spawnParticle('p-mn-ca','rgba(200,169,110,0.85)',4,700,0);
+    setTimeout(()=>{show('capture');setStatus('capture','on');addCls('capture','active')},800);
+  });
+  at(2800,()=>{hide('lbl-fetch');hide('lbl-sync')});
+
+  // Phase 3 — Pipeline overview
+  at(200,()=>{
+    setNarrative(3);
+    show('p-ca-en');show('lbl-refresh');
+    setTimeout(()=>{show('enrich');addCls('enrich','green-active')},500);
+    setTimeout(()=>{show('p-en-su');show('lbl-pipe')},900);
+    setTimeout(()=>{show('suggest');addCls('suggest','green-active')},1400);
+    setTimeout(()=>{show('p-su-di');show('lbl-ai')},1800);
+    setTimeout(()=>{show('digest');addCls('digest','purple-active')},2300);
+    for(let i=0;i<3;i++) spawnParticle('p-ca-en','rgba(77,158,106,0.85)',4,650,i*180+200);
+  });
+  at(3200,()=>{hide('lbl-refresh');hide('lbl-pipe');hide('lbl-ai')});
+
+  // Phase 4 — Enrich detail
+  at(200,()=>{
+    setNarrative(4);
+    streams.push(stream('p-ca-en','rgba(77,158,106,0.6)',3,650,1800));
+  });
+  at(2400,()=>{});
+
+  // Phase 5 — Suggest detail
+  at(200,()=>{
+    setNarrative(5);
+    for(let i=0;i<3;i++) spawnParticle('p-en-su','rgba(77,158,106,0.85)',4,650,i*200);
+    streams.push(stream('p-en-su','rgba(77,158,106,0.5)',3,650,2200));
+  });
+  at(2400,()=>{});
+
+  // Phase 6 — Digest detail
+  at(200,()=>{
+    setNarrative(6);
+    for(let i=0;i<2;i++) spawnParticle('p-su-di','rgba(138,106,191,0.85)',4,700,i*250);
+    streams.push(stream('p-su-di','rgba(138,106,191,0.5)',3,700,3000));
+  });
+  at(2400,()=>{});
+
+  // Phase 7 — State layer
+  at(200,()=>{
+    setNarrative(7);
+    show('p-en-ar');show('p-su-br');show('p-su-cl');show('p-ca-si');
+    setTimeout(()=>{show('arcs');show('bridges');show('colours');show('signals')},500);
+    spawnParticle('p-en-ar','rgba(77,158,106,0.8)',3,600,300);
+    spawnParticle('p-su-br','rgba(77,158,106,0.8)',3,600,500);
+    spawnParticle('p-su-cl','rgba(77,158,106,0.8)',3,600,700);
+    spawnParticle('p-ca-si','rgba(200,169,110,0.8)',3,600,400);
+  });
+  at(2800,()=>{});
+
+  // Phase 8 — Surfaces
+  at(200,()=>{
+    setNarrative(8);
+    show('p-si-ma');show('p-cl-mb');show('p-di-ob');show('p-cl-pu');
+    setTimeout(()=>{
+      show('myatlas');show('mobile');show('outbox');show('pulse');
+      setStatus('myatlas','on');setStatus('mobile','on');setStatus('outbox','warm');setStatus('pulse','on');
+      addCls('myatlas','blue-active');
+    },600);
+    [0,1].forEach(i=>{
+      spawnParticle('p-si-ma','rgba(90,130,255,0.8)',3,700,i*300+200);
+      spawnParticle('p-cl-mb','rgba(90,130,255,0.8)',3,700,i*300+400);
+      spawnParticle('p-di-ob','rgba(90,130,255,0.8)',3,700,i*300+300);
+      spawnParticle('p-cl-pu','rgba(90,130,255,0.8)',3,700,i*300+500);
+    });
+  });
+  at(3200,()=>{});
+
+  // Phase 9 — Agents
+  at(200,()=>{
+    setNarrative(9);
+    show('p-hm-re');show('p-hm-da');
+    setTimeout(()=>{
+      show('helm');show('recon');show('dash');
+      addCls('helm','active');
+    },400);
+  });
+  at(2800,()=>{});
+
+  // Phase 10 — Steady state
+  at(200,()=>{
+    setNarrative(10);
+    streams.push(stream('p-gm-ca','rgba(200,169,110,0.4)',2,700,4000));
+    streams.push(stream('p-hc-ca','rgba(200,169,110,0.4)',2,600,5000));
+    streams.push(stream('p-ca-en','rgba(77,158,106,0.4)',2,650,3000));
+    streams.push(stream('p-en-su','rgba(77,158,106,0.4)',2,650,3500));
+    streams.push(stream('p-su-di','rgba(138,106,191,0.4)',2,700,4500));
+    streams.push(stream('p-si-ma','rgba(90,130,255,0.35)',2,700,5000));
+    streams.push(stream('p-cl-mb','rgba(90,130,255,0.35)',2,700,5500));
+  });
+  at(5500,()=>{});
+
+  // Loop
+  at(500,()=>restart());
+  seq.forEach(({t,fn})=>setTimeout(fn,t));
+}
+
+function restart(){
+  streams.forEach(id=>clearInterval(id));streams=[];
+  ['gmail','helmcap','manual','capture','enrich','suggest','digest','myatlas','mobile','outbox','pulse','recon','helm','dash'].forEach(id=>{
+    hide(id);setStatus(id,'');
+    ['active','green-active','blue-active','purple-active'].forEach(c=>remCls(id,c));
+  });
+  ['arcs','bridges','colours','signals'].forEach(id=>hide(id));
+  ['p-gm-ca','p-hc-ca','p-mn-ca','p-ca-en','p-en-su','p-su-di','p-en-ar','p-su-br','p-su-cl','p-ca-si','p-si-ma','p-cl-mb','p-di-ob','p-cl-pu','p-hm-re','p-hm-da'].forEach(id=>hide(id));
+  ['lbl-refresh','lbl-pipe','lbl-ai','lbl-fetch','lbl-sync'].forEach(id=>hide(id));
+  remCls('foundation','active');
+  panel.classList.remove('visible');
+  document.querySelectorAll('.particle').forEach(p=>p.remove());
+  setTimeout(()=>runAnimation(),500);
+}
+
+window.addEventListener('DOMContentLoaded',()=>setTimeout(init,300));
+
+let resizeTimer;
+window.addEventListener('resize',()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(()=>{
+    streams.forEach(id=>clearInterval(id));streams=[];
+    nl.innerHTML='';
+    document.querySelectorAll('.particle').forEach(p=>p.remove());
+    while(svg.children.length>1)svg.removeChild(svg.lastChild);
+    init();
+  },400);
+});
+</script>
+</body>
+</html>
