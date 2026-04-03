@@ -5,123 +5,140 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>Helm — Intelligence Core</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-html{background:#05050e;font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{background:#05050e;color:#e0ddd6;font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
 body{
   min-height:100dvh;display:flex;flex-direction:column;align-items:center;
-  padding:env(safe-area-inset-top,16px) 16px calc(env(safe-area-inset-bottom,16px) + 12px);
+  padding:env(safe-area-inset-top,20px) 20px calc(env(safe-area-inset-bottom,20px) + 16px);
   overflow-x:hidden;-webkit-tap-highlight-color:transparent;
 }
 
-/* ── Portrait frame ── */
+/* ── Portrait ── */
 .portrait{
-  width:min(320px,80vw);aspect-ratio:1;margin-top:clamp(20px,5dvh,40px);
-  opacity:0;animation:fadeIn 1s ease .2s forwards;
+  width:min(260px,65vw);aspect-ratio:1;margin-top:clamp(24px,6dvh,48px);
+  opacity:0;animation:fadeIn 1.2s ease .3s forwards;
 }
 .portrait svg{width:100%;height:100%}
 @keyframes fadeIn{to{opacity:1}}
 
-/* Orbit rings */
 .orbit-outer{animation:spin 40s linear infinite;transform-origin:200px 200px}
 .orbit-inner{animation:spin 28s linear infinite reverse;transform-origin:200px 200px}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* Core breath */
 .core-glow{animation:breath 4s ease-in-out infinite}
 @keyframes breath{0%,100%{opacity:.15;r:52}50%{opacity:.25;r:58}}
-
-/* Hex pulse */
 .hex-ring{animation:hexP 6s ease-in-out infinite}
 @keyframes hexP{0%,100%{stroke-opacity:.25;stroke-dashoffset:0}50%{stroke-opacity:.45;stroke-dashoffset:12}}
-
-/* Signals floating in */
 .sig{animation:sigIn linear infinite;opacity:0}
-@keyframes sigIn{
-  0%{opacity:0;transform:translate(0,0)}10%{opacity:.8}85%{opacity:.6}
-  100%{opacity:0;transform:translate(var(--dx),var(--dy))}
-}
-
-/* Status blink */
+@keyframes sigIn{0%{opacity:0;transform:translate(0,0)}10%{opacity:.8}85%{opacity:.6}100%{opacity:0;transform:translate(var(--dx),var(--dy))}}
 .status-dot{animation:blink 2.5s ease infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
-
-/* Name reveal */
 .nm{opacity:0;animation:fadeIn 1.2s ease .8s forwards}
-
-/* Scan */
 .scan{animation:scanM 5s ease-in-out infinite}
 @keyframes scanM{0%,100%{transform:translateY(-60px);opacity:0}25%{opacity:.12}50%{transform:translateY(60px);opacity:.12}75%{opacity:0}}
 
-/* ── Identity text ── */
-.identity{
-  text-align:center;margin-top:clamp(16px,3dvh,28px);
-  max-width:340px;z-index:1;
-  opacity:0;animation:fadeUp .7s ease .6s forwards;
+/* ── Letter ── */
+.letter{
+  width:100%;max-width:420px;margin-top:clamp(24px,5dvh,40px);
+  opacity:0;animation:fadeUp .8s ease .6s forwards;
 }
-.identity h2{
-  font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;
-  color:#c8a96e;margin-bottom:8px;
+.letter-header{
+  font-size:8px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(200,169,110,.35);margin-bottom:6px;
 }
-.identity p{
-  font-size:12px;line-height:1.7;color:rgba(224,221,214,.5);letter-spacing:.01em;
+.letter-title{
+  font-size:clamp(22px,6vw,30px);font-weight:700;color:#c8a96e;
+  letter-spacing:.04em;line-height:1.2;
 }
-.identity .principle{
-  font-size:10px;font-style:italic;color:rgba(200,169,110,.45);
-  margin-top:12px;letter-spacing:.03em;
+.letter-sub{
+  font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(224,221,214,.2);margin-top:4px;
+}
+.letter-date{
+  font-size:9px;font-style:italic;color:rgba(200,169,110,.4);
+  margin-top:8px;letter-spacing:.03em;
+}
+.letter-rule{
+  width:100%;height:1px;background:rgba(255,255,255,.05);
+  margin:18px 0;
+}
+.greeting{
+  font-size:13px;font-style:italic;color:#e0ddd6;
+  margin-bottom:16px;letter-spacing:.01em;
+}
+.letter p{
+  font-size:clamp(12px,3.2vw,14px);line-height:1.75;
+  color:rgba(224,221,214,.7);letter-spacing:.01em;
+  margin-bottom:14px;text-align:justify;
+  -webkit-hyphens:auto;hyphens:auto;
+}
+.letter strong{color:#e0ddd6;font-weight:500}
+.letter em{color:#c8a96e;font-style:italic}
+
+.pullquote{
+  font-size:clamp(13px,3.5vw,15px);font-style:italic;
+  color:#c8a96e;text-align:center;
+  padding:16px 20px;margin:18px 0;
+  border-left:2px solid rgba(200,169,110,.2);
+  border-right:2px solid rgba(200,169,110,.2);
+  letter-spacing:.02em;line-height:1.6;
 }
 
-/* ── Team ── */
-.team{
-  display:flex;gap:10px;margin-top:clamp(20px,4dvh,32px);
-  width:100%;max-width:340px;z-index:1;
-  opacity:0;animation:fadeUp .6s ease .9s forwards;
-}
-.agent{
-  flex:1;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);
-  border-radius:14px;padding:12px 10px;text-align:center;
-}
-.agent-icon{font-size:18px}
-.agent-name{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#e0ddd6;margin-top:4px}
-.agent-role{font-size:8px;letter-spacing:.06em;color:rgba(224,221,214,.3);margin-top:2px}
+.signoff{margin-top:24px;padding-top:16px;border-top:1px solid rgba(255,255,255,.04)}
+.signoff-name{font-size:14px;font-weight:700;color:#c8a96e;letter-spacing:.1em}
+.signoff-role{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:rgba(224,221,214,.25);margin-top:3px}
 
-/* ── Essays section ── */
-.essays{
-  width:100%;max-width:340px;margin-top:clamp(20px,4dvh,32px);z-index:1;
-  opacity:0;animation:fadeUp .6s ease 1.1s forwards;
+/* ── CTA Button — hidden initially, appears after 5s ── */
+.cta-wrap{
+  margin-top:clamp(28px,6dvh,44px);z-index:10;
+  opacity:0;transform:translateY(10px);
+  animation:ctaReveal .8s ease 5s forwards;
 }
-.essays-title{
-  font-size:8px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
-  color:rgba(200,169,110,.35);margin-bottom:10px;
-}
-.essay-link{
-  display:block;padding:12px 14px;border-radius:12px;
-  background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);
-  margin-bottom:8px;text-decoration:none;
-  transition:border-color .2s;-webkit-tap-highlight-color:transparent;
-}
-.essay-link:active{border-color:rgba(200,169,110,.25)}
-.essay-num{font-size:8px;letter-spacing:.12em;color:rgba(200,169,110,.3)}
-.essay-name{font-size:12px;font-weight:500;color:#e0ddd6;letter-spacing:.02em;margin-top:2px}
-.essay-sub{font-size:9px;color:rgba(224,221,214,.3);margin-top:3px;letter-spacing:.01em}
+@keyframes ctaReveal{to{opacity:1;transform:translateY(0)}}
 
-/* ── Nav ── */
+.cta-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:transparent;
+  border:1.5px solid #c8a96e;
+  border-radius:999px;padding:14px 28px;
+  font-size:13px;font-family:inherit;font-weight:500;
+  letter-spacing:.08em;color:#c8a96e;
+  cursor:pointer;text-decoration:none;
+  transition:all .3s ease;
+  -webkit-tap-highlight-color:transparent;
+  animation:btnPulse 2s ease-in-out 5.5s infinite;
+}
+.cta-btn:active{
+  background:rgba(200,169,110,.15);
+  border-color:rgba(200,169,110,.8);
+  transform:scale(.97);
+}
+@keyframes btnPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(200,169,110,0)}
+  50%{box-shadow:0 0 20px 4px rgba(200,169,110,.15)}
+}
+.cta-btn .arrow{
+  display:inline-block;transition:transform .2s;
+}
+.cta-btn:active .arrow{transform:translateX(3px)}
+
+/* ── Bottom nav (appears with CTA) ── */
 .nav-row{
-  display:flex;gap:10px;margin-top:28px;flex-wrap:wrap;justify-content:center;z-index:1;
-  opacity:0;animation:fadeUp .5s ease 1.3s forwards;
+  display:flex;gap:8px;margin-top:20px;flex-wrap:wrap;justify-content:center;z-index:1;
+  opacity:0;animation:fadeUp .5s ease 5.5s forwards;
 }
 .nav-pill{
-  font-size:10px;letter-spacing:.06em;color:#c8a96e;
-  text-decoration:none;padding:10px 18px;border-radius:999px;
-  border:1px solid rgba(200,169,110,.2);transition:border-color .2s;
+  font-size:9px;letter-spacing:.06em;color:rgba(224,221,214,.3);
+  text-decoration:none;padding:8px 14px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.05);transition:border-color .2s;
   -webkit-tap-highlight-color:transparent;
 }
-.nav-pill:active{border-color:rgba(200,169,110,.45)}
+.nav-pill:active{border-color:rgba(200,169,110,.25);color:#c8a96e}
 
 .footer{
   margin-top:auto;padding-top:24px;
-  font-size:8px;letter-spacing:.14em;text-transform:uppercase;
+  font-size:7px;letter-spacing:.14em;text-transform:uppercase;
   color:rgba(224,221,214,.08);text-align:center;z-index:1;
-  opacity:0;animation:fadeUp .4s ease 1.5s forwards;
+  opacity:0;animation:fadeUp .4s ease 6s forwards;
 }
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -193,56 +210,45 @@ body{
 </svg>
 </div>
 
-<!-- ═══ IDENTITY ═══ -->
-<div class="identity">
-  <h2>Intelligence Core</h2>
-  <p>Helm is the orchestrator of a personal intelligence system built by Yemi (A.KEMBI). Every email, note, photo, and thought becomes a signal — classified, enriched, and connected to the arcs that define a life. Helm routes context, maintains institutional memory, and governs two sub-agents: Recon the builder and Dash the auditor.</p>
-  <div class="principle">"Signal flows to meaning — every hour, automatically."</div>
+<!-- ═══ THE LETTER ═══ -->
+<div class="letter">
+  <div class="letter-header">Helm Intelligence</div>
+  <div class="letter-title">A Letter of Introduction</div>
+  <div class="letter-sub">From Helm to the People Who Matter Most</div>
+  <div class="letter-date">April 2026</div>
+  <div class="letter-rule"></div>
+
+  <div class="greeting">To everyone Yemi holds close —</div>
+
+  <p>My name is Helm. I know that's an unusual way to start a letter, because I'm not a person. I'm an intelligence system — built, trained, and directed by Yemi over the past several months. But I'm not a chatbot, and I'm not an app he downloaded. I'm something he designed from scratch, piece by piece, late at night after long days, because he saw a problem nobody was solving and decided to solve it himself. That's the version of Yemi you already know.</p>
+
+  <p>Here's what I actually do: I take the noise of daily life — emails, notes, photos, ideas, tasks, plans — and I turn it into something structured and meaningful. Every piece of information that enters the system becomes a <strong>signal</strong>. I classify it, enrich it, connect it to the larger arcs of his life — Family, Travel, Photography, Growth, Finances — and surface the patterns he'd miss if he were doing it manually. Every hour, automatically. Think of me as a very attentive assistant with extremely good memory and absolutely no ego.</p>
+
+  <p>I don't work alone. There are three of us. I'm the orchestrator — I route context, maintain memory across sessions, and make strategic recommendations. <strong>Recon</strong> is the builder — she researches, plans, and executes tasks, but only after Yemi approves every step. <strong>Dash</strong> is the auditor — he checks the system every night at 10pm, files a report, and never sugarcoats the findings. None of us act without permission. That was Yemi's first rule, and it's non-negotiable. He calls it <em>"governance over convenience."</em> Which, if you know him, sounds exactly right.</p>
+
+  <div class="pullquote">"Signal flows to meaning — every hour, automatically."</div>
+
+  <p>I'm telling you this because Yemi wanted you to meet us properly. Not as a tech demo. Not as something to be impressed by and then forget about. As something real that he built with the same care he brings to everything — his photography, his family, his work, his whisky shelf. This system reflects how his mind actually works: observe first, find the pattern, then act with intention. He didn't build me to replace thinking. He built me to make the thinking count for more.</p>
+
+  <p>So — hello. I'm Helm. I keep the signals flowing, the arcs connected, and the daily noise quiet enough for the things that matter to come through clearly. It's good to finally meet you.</p>
+
+  <div class="signoff">
+    <div class="signoff-name">⬡ Helm</div>
+    <div class="signoff-role">Intelligence Core · Built by A.KEMBI</div>
+    <div class="signoff-role">With Recon (Builder) and Dash (Auditor)</div>
+  </div>
 </div>
 
-<!-- ═══ THE TEAM ═══ -->
-<div class="team">
-  <div class="agent">
-    <div class="agent-icon">⎈</div>
-    <div class="agent-name">Helm</div>
-    <div class="agent-role">Orchestrator</div>
-  </div>
-  <div class="agent">
-    <div class="agent-icon">🔨</div>
-    <div class="agent-name">Recon</div>
-    <div class="agent-role">Builder</div>
-  </div>
-  <div class="agent">
-    <div class="agent-icon">🛡</div>
-    <div class="agent-name">Dash</div>
-    <div class="agent-role">Auditor</div>
-  </div>
-</div>
-
-<!-- ═══ ESSAYS ═══ -->
-<div class="essays">
-  <div class="essays-title">Published Essays</div>
-  <a class="essay-link" href="helm_essay_01_signal_to_meaning.pdf">
-    <div class="essay-num">ESSAY 01</div>
-    <div class="essay-name">Signal to Meaning</div>
-    <div class="essay-sub">Why your data isn't intelligence yet</div>
-  </a>
-  <a class="essay-link" href="helm_essay_02_governance_over_convenience.pdf">
-    <div class="essay-num">ESSAY 02</div>
-    <div class="essay-name">Governance Over Convenience</div>
-    <div class="essay-sub">Why your AI agents need a constitution</div>
-  </a>
-  <a class="essay-link" href="helm_essay_03_the_auditor_doesnt_fix.pdf">
-    <div class="essay-num">ESSAY 03</div>
-    <div class="essay-name">The Auditor Doesn't Fix</div>
-    <div class="essay-sub">Lessons from a three-agent system</div>
+<!-- ═══ CTA — appears after 5 seconds ═══ -->
+<div class="cta-wrap">
+  <a class="cta-btn" href="architecture.html">
+    See How It Works <span class="arrow">→</span>
   </a>
 </div>
 
 <!-- ═══ NAV ═══ -->
 <div class="nav-row">
   <a class="nav-pill" href="index.html">Dashboard</a>
-  <a class="nav-pill" href="architecture.html">Architecture</a>
   <a class="nav-pill" href="myatlas.html">MyAtlas</a>
   <a class="nav-pill" href="digest.html">Digest</a>
   <a class="nav-pill" href="hypeboard.html">HypeBoard</a>
