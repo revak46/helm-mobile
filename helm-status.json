@@ -1,72 +1,24 @@
 {
-  "generated_at": "2026-04-02T11:24:50.660810",
-  "date": "Thursday, April 02, 2026",
-  "time": "11:24 AM",
-  "signal_count": 32,
-  "digest": "",
+  "signal_count": 53,
+  "time": "2:30 PM",
+  "date": "April 3, 2026",
   "pillars": [
-    {
-      "name": "Family",
-      "momentum": "silent",
-      "signal_count": 0,
-      "colour": "#888"
-    },
-    {
-      "name": "Travel",
-      "momentum": "hot",
-      "signal_count": 0,
-      "colour": "#888"
-    },
-    {
-      "name": "Photography",
-      "momentum": "hot",
-      "signal_count": 0,
-      "colour": "#888"
-    },
-    {
-      "name": "Growth",
-      "momentum": "hot",
-      "signal_count": 0,
-      "colour": "#888"
-    },
-    {
-      "name": "Finances",
-      "momentum": "silent",
-      "signal_count": 0,
-      "colour": "#888"
-    }
+    {"name": "Family", "momentum": "Warm", "signal_count": 12},
+    {"name": "Travel", "momentum": "Hot", "signal_count": 15},
+    {"name": "Photography", "momentum": "Cool", "signal_count": 6},
+    {"name": "Growth", "momentum": "Hot", "signal_count": 14},
+    {"name": "Finances", "momentum": "Warm", "signal_count": 6}
   ],
   "arcs": [
-    {
-      "label": "Houston Trip",
-      "signal_count": 6,
-      "pillars": []
-    },
-    {
-      "label": "Photography Gear Audit",
-      "signal_count": 10,
-      "pillars": []
-    },
-    {
-      "label": "Device Inventory",
-      "signal_count": 11,
-      "pillars": []
-    },
-    {
-      "label": "Intentional Curation",
-      "signal_count": 6,
-      "pillars": []
-    },
-    {
-      "label": "DBA Growth",
-      "signal_count": 2,
-      "pillars": []
-    },
-    {
-      "label": "Photography Community",
-      "signal_count": 2,
-      "pillars": []
-    }
+    {"label": "Katy TX Trip Planning", "pillars": ["Travel", "Family"], "signal_count": 12},
+    {"label": "CT/CDC POC Sprint", "pillars": ["Growth"], "signal_count": 8},
+    {"label": "Helm System Build", "pillars": ["Growth"], "signal_count": 6}
   ],
-  "suggestions": []
+  "suggestions": [
+    {"type": "FOCUS", "text": "Growth momentum leading — CT/CDC sprint and Helm expansion are primary drivers."},
+    {"type": "BRIDGE", "text": "Katy TX trip crosses Family + Travel — consider combining signals."},
+    {"type": "FLAG", "text": "Photography signals cooling. Last capture session: 6 days ago."}
+  ],
+  "digest": "Two pillars running hot. Growth is pulling ahead on the strength of the CT/CDC proof-of-concept and the Helm system build — both generating consistent daily signals. Travel is surging with Katy TX planning crossing into Family territory. Photography has gone quiet; may want to schedule a shoot this weekend to keep the momentum honest.",
+  "generated_at": "2026-04-03T14:30:00Z"
 }

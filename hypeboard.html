@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
 <title>HypeBoard — The Mood Engine</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -27,7 +30,7 @@ body::before{
 }
 .header h1{font-size:clamp(30px,8vw,42px);font-weight:300;letter-spacing:.18em;color:#e0ddd6}
 .header h1 strong{font-weight:700;color:#c8a96e}
-.header p{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:rgba(224,221,214,.28);margin-top:5px}
+.header p{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:rgba(224,221,214,.5);margin-top:5px}
 @keyframes fadeDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── Mood selector ── */
@@ -50,7 +53,7 @@ body::before{
 }
 .mood-btn .mi{font-size:22px;transition:transform .25s}
 .mood-btn.active .mi{transform:scale(1.12)}
-.mood-btn .ml{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:rgba(224,221,214,.4);transition:color .25s}
+.mood-btn .ml{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:rgba(224,221,214,.55);transition:color .25s}
 .mood-btn.active .ml{color:#e0ddd6}
 
 /* ── Card stage ── */
@@ -80,7 +83,7 @@ body::before{
 }
 .quote-attr{
   margin-top:14px;font-size:10px;letter-spacing:.12em;
-  text-transform:uppercase;color:rgba(224,221,214,.28);
+  text-transform:uppercase;color:rgba(224,221,214,.5);
 }
 .quote-mood{
   margin-top:10px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;
@@ -101,7 +104,7 @@ body::before{
 .cdot.active{background:var(--accent,#d4845a);box-shadow:0 0 8px var(--accent,#d4845a)}
 .swipe-hint{
   margin-top:10px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;
-  color:rgba(224,221,214,.18);z-index:1;
+  color:rgba(224,221,214,.5);z-index:1;
   opacity:0;animation:fadeUp .5s ease 1.3s forwards;
 }
 

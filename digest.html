@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
 <title>Helm Intelligence Digest</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -29,7 +32,7 @@ body::before{
 .header .title strong{font-weight:700}
 .header .date{
   font-size:10px;letter-spacing:.18em;text-transform:uppercase;
-  color:rgba(224,221,214,.25);margin-top:8px;
+  color:rgba(224,221,214,.5);margin-top:8px;
 }
 @keyframes fadeDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 
@@ -61,7 +64,7 @@ body::before{
 }
 .flow-step{
   font-size:9px;letter-spacing:.1em;text-transform:uppercase;
-  color:rgba(224,221,214,.35);padding:6px 12px;border-radius:99px;
+  color:rgba(224,221,214,.5);padding:6px 12px;border-radius:99px;
   border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);
   white-space:nowrap;
 }
@@ -82,7 +85,7 @@ body::before{
   border-bottom:1px solid rgba(255,255,255,.04);
 }
 .card-header .label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#c8a96e}
-.card-header .time{font-size:9px;letter-spacing:.08em;color:rgba(224,221,214,.2)}
+.card-header .time{font-size:9px;letter-spacing:.08em;color:rgba(224,221,214,.5)}
 .card-body{padding:18px 20px 22px}
 
 /* Sections inside card */
@@ -90,7 +93,7 @@ body::before{
 .section:last-child{margin-bottom:0}
 .section-head{
   font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
-  color:rgba(224,221,214,.35);margin-bottom:10px;
+  color:rgba(224,221,214,.5);margin-bottom:10px;
 }
 
 /* Pillar momentum bars */
@@ -108,7 +111,7 @@ body::before{
   margin-bottom:6px;
 }
 .arc-title{font-size:12px;font-weight:500;color:#e0ddd6;letter-spacing:.02em}
-.arc-meta{font-size:9px;letter-spacing:.06em;color:rgba(224,221,214,.28);margin-top:4px}
+.arc-meta{font-size:9px;letter-spacing:.06em;color:rgba(224,221,214,.5);margin-top:4px}
 
 /* AI summary */
 .ai-summary{
@@ -134,7 +137,7 @@ body::before{
 .del-chip{
   font-size:9px;letter-spacing:.08em;text-transform:uppercase;
   padding:7px 14px;border-radius:99px;
-  border:1px solid rgba(255,255,255,.06);color:rgba(224,221,214,.3);
+  border:1px solid rgba(255,255,255,.06);color:rgba(224,221,214,.5);
   display:flex;align-items:center;gap:5px;
 }
 .del-chip .icon{font-size:12px}
@@ -147,7 +150,7 @@ body::before{
 }
 .how-title{
   font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
-  color:rgba(224,221,214,.25);text-align:center;margin-bottom:14px;
+  color:rgba(224,221,214,.5);text-align:center;margin-bottom:14px;
 }
 .how-steps{display:flex;flex-direction:column;gap:10px}
 .how-step{
@@ -231,7 +234,7 @@ body::before{
       <div class="pillar-bar"><span class="name">Travel</span><div class="bar-track"><div class="bar-fill" style="width:65%;background:#d4845a"></div></div><span class="val" style="color:#d4845a">65</span></div>
       <div class="pillar-bar"><span class="name">Photo</span><div class="bar-track"><div class="bar-fill" style="width:42%;background:#5a9e6f"></div></div><span class="val" style="color:#5a9e6f">42</span></div>
       <div class="pillar-bar"><span class="name">Growth</span><div class="bar-track"><div class="bar-fill" style="width:88%;background:#6a8fad"></div></div><span class="val" style="color:#6a8fad">88</span></div>
-      <div class="pillar-bar"><span class="name">Finances</span><div class="bar-track"><div class="bar-fill" style="width:54%;background:#8a6abf"></div></div><span class="val" style="color:#8a6abf">54</span></div>
+      <div class="pillar-bar"><span class="name">Finances</span><div class="bar-track"><div class="bar-fill" style="width:54%;background:#9d7ed4"></div></div><span class="val" style="color:#9d7ed4">54</span></div>
     </div>
 
     <!-- Active Arcs -->
@@ -307,7 +310,7 @@ fetch('helm-status.json').then(r=>r.ok?r.json():null).then(data=>{
   // Update pillar bars if available
   if(data.pillars&&Array.isArray(data.pillars)){
     const bars=document.querySelectorAll('.pillar-bar');
-    const colors={'Family':'#c8a96e','Travel':'#d4845a','Photography':'#5a9e6f','Growth':'#6a8fad','Finances':'#8a6abf'};
+    const colors={'Family':'#c8a96e','Travel':'#d4845a','Photography':'#5a9e6f','Growth':'#6a8fad','Finances':'#9d7ed4'};
     data.pillars.forEach((p,i)=>{
       if(!bars[i])return;
       const fill=bars[i].querySelector('.bar-fill');

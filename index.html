@@ -1,58 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Helm">
-<meta name="theme-color" content="#0a0a0a">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Helm"/>
+<meta name="theme-color" content="#05050e"/>
 <title>Helm — Live Status</title>
 <style>
-:root {
-  --bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e4dd;
-  --muted:#8a8680;--accent:#c8a96e;--accent-dim:rgba(200,169,110,0.15);
-  --hot:#d4845a;--warm:#c8a96e;--cool:#6a8fad;--silent:#4a4a4a;
-  --font:-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;
-  --display:'SF Pro Display',-apple-system,system-ui,sans-serif;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{background:#05050e}
+body{
+  background:#05050e;color:#e0ddd6;
+  font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;
+  font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  min-height:100dvh;
+  padding:env(safe-area-inset-top,20px) 16px calc(env(safe-area-inset-bottom,20px) + 16px);
+  -webkit-tap-highlight-color:transparent;
 }
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
-.c{max-width:420px;margin:0 auto;padding:20px 16px 40px}
-.hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid var(--border)}
-.hdr h1{font-family:var(--display);font-size:22px;font-weight:600;letter-spacing:.5px;color:var(--accent)}
-.hdr .ts{font-size:12px;color:var(--muted)}
-.date{font-family:var(--display);font-size:17px;font-weight:500;margin-bottom:20px}
-.sbar{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.sbar .l{font-size:13px;color:var(--muted)}
-.sbar .n{font-family:var(--display);font-size:24px;font-weight:600;color:var(--accent)}
-.lbl{font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
-.sec{margin-bottom:24px}
+:root{
+  --bg:#05050e;--surface:#111118;--border:#3a3a3a;--text:#e0ddd6;
+  --muted:#8a8680;--accent:#c8a96e;--accent-dim:rgba(200,169,110,0.12);
+  --hot:#d4845a;--warm:#c8a96e;--cool:#6a8fad;--silent:#7c7c7c;
+}
+
+.c{max-width:420px;margin:0 auto;padding:clamp(16px,4dvh,28px) 0 40px}
+.hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.hdr h1{font-size:clamp(18px,5vw,22px);font-weight:600;letter-spacing:.5px;color:var(--accent)}
+.hdr .ts{font-size:11px;color:var(--muted)}
+.date{font-size:clamp(14px,4vw,17px);font-weight:500;margin-bottom:16px;color:var(--text)}
+.sbar{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.sbar .l{font-size:12px;color:var(--muted)}
+.sbar .n{font-size:clamp(20px,6vw,24px);font-weight:600;color:var(--accent)}
+.lbl{font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.sec{margin-bottom:20px}
 .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.pc{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;position:relative;overflow:hidden}
+.pc{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;position:relative;overflow:hidden}
 .pc::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:3px 0 0 3px}
 .pc.hot::before{background:var(--hot)}.pc.warm::before{background:var(--warm)}.pc.cool::before{background:var(--cool)}.pc.silent::before{background:var(--silent)}
-.pn{font-size:13px;font-weight:600;margin-bottom:4px}
+.pn{font-size:12px;font-weight:600;margin-bottom:3px}
 .pm{display:flex;justify-content:space-between;align-items:center}
-.mo{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+.mo{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
 .pc.hot .mo{color:var(--hot)}.pc.warm .mo{color:var(--warm)}.pc.cool .mo{color:var(--cool)}.pc.silent .mo{color:var(--silent)}
-.ct{font-size:11px;color:var(--muted)}
-.dc{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px}
-.dt{font-size:14px;line-height:1.6;white-space:pre-wrap}
-.de{font-size:13px;color:var(--muted);font-style:italic}
+.ct{font-size:10px;color:var(--muted)}
+.dc{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px}
+.dt{font-size:13px;line-height:1.6;white-space:pre-wrap}
+.de{font-size:12px;color:var(--muted);font-style:italic}
 .al{display:flex;flex-direction:column;gap:6px}
-.ai{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center}
-.an{font-size:13px;font-weight:500;flex:1}
+.ai{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 12px;display:flex;justify-content:space-between;align-items:center}
+.an{font-size:12px;font-weight:500;flex:1}
 .ab{display:flex;gap:4px;margin-left:8px}
-.abg{font-size:10px;padding:2px 6px;border-radius:4px;background:var(--accent-dim);color:var(--accent);font-weight:500}
-.ac{font-size:11px;color:var(--muted);margin-left:8px;white-space:nowrap}
+.abg{font-size:9px;padding:2px 5px;border-radius:4px;background:var(--accent-dim);color:var(--accent);font-weight:500}
+.ac{font-size:10px;color:var(--muted);margin-left:8px;white-space:nowrap}
 .sl{display:flex;flex-direction:column;gap:6px}
-.si{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.5}
-.st{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:4px}
-.ft{text-align:center;padding-top:20px;border-top:1px solid var(--border);margin-top:32px;font-size:11px;color:var(--muted);letter-spacing:.5px}
+.si{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:10px 12px;font-size:12px;line-height:1.5}
+.st{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:3px}
+.ft{text-align:center;padding-top:16px;border-top:1px solid var(--border);margin-top:24px;font-size:10px;color:var(--muted);letter-spacing:.5px}
 .ld{text-align:center;padding:60px 20px;color:var(--muted)}
 .sp{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:s .8s linear infinite;margin-bottom:12px}
 @keyframes s{to{transform:rotate(360deg)}}
+
+/* ── Navigation Pills ── */
+.nav-row{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:8px;
+  margin-top:24px;padding-top:16px;border-top:1px solid var(--border);
+}
+.nav-pill{
+  display:inline-block;padding:6px 14px;border-radius:20px;
+  font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--border);text-decoration:none;
+  transition:all .25s ease;
+}
+.nav-pill:active{background:var(--accent-dim);color:var(--accent);border-color:var(--accent)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
@@ -67,17 +92,51 @@ async function load(){
     if(!r.ok)throw new Error('HTTP '+r.status);
     render(await r.json());
   }catch(e){
-    a.innerHTML='<div class="hdr"><h1>HELM</h1></div><div class="dc"><div class="de">Status unavailable: '+esc(e.message)+'</div></div>';
+    a.innerHTML=`<div class="hdr"><h1>HELM</h1></div>
+      <div class="dc"><div class="de">Status unavailable: ${esc(e.message)}</div></div>
+      ${navHTML()}`;
   }
 }
+
+function navHTML(){
+  return `<nav class="nav-row">
+    <a class="nav-pill" href="helm.html">Helm</a>
+    <a class="nav-pill" href="architecture.html">Architecture</a>
+    <a class="nav-pill" href="digest.html">Digest</a>
+    <a class="nav-pill" href="myatlas.html">MyAtlas</a>
+    <a class="nav-pill" href="hypeboard.html">HypeBoard</a>
+  </nav>`;
+}
+
 function render(d){
   const a=document.getElementById('app');
-  const p=(d.pillars||[]).map(p=>{const m=(p.momentum||'silent').toLowerCase();return'<div class="pc '+m+'"><div class="pn">'+esc(p.name)+'</div><div class="pm"><span class="mo">'+esc(p.momentum||'Silent')+'</span><span class="ct">'+(p.signal_count||0)+' signals</span></div></div>'}).join('');
-  const ar=(d.arcs||[]).map(a=>'<div class="ai"><span class="an">'+esc(a.label)+'</span><div class="ab">'+(a.pillars||[]).map(p=>'<span class="abg">'+esc(p)+'</span>').join('')+'</div><span class="ac">'+(a.signal_count||0)+'</span></div>').join('');
-  const sg=(d.suggestions||[]).map(s=>'<div class="si">'+(s.type?'<div class="st">'+esc(s.type)+'</div>':'')+esc(s.text)+'</div>').join('');
-  const dg=d.digest?'<div class="dt">'+esc(d.digest)+'</div>':'<div class="de">No digest yet</div>';
-  a.innerHTML='<div class="hdr"><h1>HELM</h1><span class="ts">'+esc(d.time||'')+'</span></div><div class="date">'+esc(d.date||'')+'</div><div class="sbar"><span class="l">Total Signals</span><span class="n">'+(d.signal_count||0)+'</span></div><div class="sec"><div class="lbl">Pillars</div><div class="pgrid">'+p+'</div></div>'+((d.arcs||[]).length?'<div class="sec"><div class="lbl">Active Arcs</div><div class="al">'+ar+'</div></div>':'')+((d.suggestions||[]).length?'<div class="sec"><div class="lbl">Suggestions</div><div class="sl">'+sg+'</div></div>':'')+' <div class="sec"><div class="lbl">Digest</div><div class="dc">'+dg+'</div></div><div class="ft">HELM INTELLIGENCE</div>';
+  const p=(d.pillars||[]).map(p=>{
+    const m=(p.momentum||'silent').toLowerCase();
+    return `<div class="pc ${m}"><div class="pn">${esc(p.name)}</div><div class="pm"><span class="mo">${esc(p.momentum||'Silent')}</span><span class="ct">${p.signal_count||0} signals</span></div></div>`;
+  }).join('');
+
+  const ar=(d.arcs||[]).map(a=>
+    `<div class="ai"><span class="an">${esc(a.label)}</span><div class="ab">${(a.pillars||[]).map(p=>`<span class="abg">${esc(p)}</span>`).join('')}</div><span class="ac">${a.signal_count||0}</span></div>`
+  ).join('');
+
+  const sg=(d.suggestions||[]).map(s=>
+    `<div class="si">${s.type?`<div class="st">${esc(s.type)}</div>`:''}${esc(s.text)}</div>`
+  ).join('');
+
+  const dg=d.digest?`<div class="dt">${esc(d.digest)}</div>`:'<div class="de">No digest yet</div>';
+
+  a.innerHTML=`
+    <div class="hdr"><h1>HELM</h1><span class="ts">${esc(d.time||'')}</span></div>
+    <div class="date">${esc(d.date||'')}</div>
+    <div class="sbar"><span class="l">Total Signals</span><span class="n">${d.signal_count||0}</span></div>
+    <div class="sec"><div class="lbl">Pillars</div><div class="pgrid">${p}</div></div>
+    ${(d.arcs||[]).length?`<div class="sec"><div class="lbl">Active Arcs</div><div class="al">${ar}</div></div>`:''}
+    ${(d.suggestions||[]).length?`<div class="sec"><div class="lbl">Suggestions</div><div class="sl">${sg}</div></div>`:''}
+    <div class="sec"><div class="lbl">Digest</div><div class="dc">${dg}</div></div>
+    <div class="ft">HELM INTELLIGENCE</div>
+    ${navHTML()}`;
 }
+
 function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=String(s);return d.innerHTML}
 load();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
