@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Helm — Intelligence Core</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:#05050e;font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+body{
+  min-height:100dvh;display:flex;flex-direction:column;align-items:center;
+  padding:env(safe-area-inset-top,16px) 16px calc(env(safe-area-inset-bottom,16px) + 12px);
+  overflow-x:hidden;-webkit-tap-highlight-color:transparent;
+}
+
+/* ── Portrait frame ── */
+.portrait{
+  width:min(320px,80vw);aspect-ratio:1;margin-top:clamp(20px,5dvh,40px);
+  opacity:0;animation:fadeIn 1s ease .2s forwards;
+}
+.portrait svg{width:100%;height:100%}
+@keyframes fadeIn{to{opacity:1}}
+
+/* Orbit rings */
+.orbit-outer{animation:spin 40s linear infinite;transform-origin:200px 200px}
+.orbit-inner{animation:spin 28s linear infinite reverse;transform-origin:200px 200px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Core breath */
+.core-glow{animation:breath 4s ease-in-out infinite}
+@keyframes breath{0%,100%{opacity:.15;r:52}50%{opacity:.25;r:58}}
+
+/* Hex pulse */
+.hex-ring{animation:hexP 6s ease-in-out infinite}
+@keyframes hexP{0%,100%{stroke-opacity:.25;stroke-dashoffset:0}50%{stroke-opacity:.45;stroke-dashoffset:12}}
+
+/* Signals floating in */
+.sig{animation:sigIn linear infinite;opacity:0}
+@keyframes sigIn{
+  0%{opacity:0;transform:translate(0,0)}10%{opacity:.8}85%{opacity:.6}
+  100%{opacity:0;transform:translate(var(--dx),var(--dy))}
+}
+
+/* Status blink */
+.status-dot{animation:blink 2.5s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* Name reveal */
+.nm{opacity:0;animation:fadeIn 1.2s ease .8s forwards}
+
+/* Scan */
+.scan{animation:scanM 5s ease-in-out infinite}
+@keyframes scanM{0%,100%{transform:translateY(-60px);opacity:0}25%{opacity:.12}50%{transform:translateY(60px);opacity:.12}75%{opacity:0}}
+
+/* ── Identity text ── */
+.identity{
+  text-align:center;margin-top:clamp(16px,3dvh,28px);
+  max-width:340px;z-index:1;
+  opacity:0;animation:fadeUp .7s ease .6s forwards;
+}
+.identity h2{
+  font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;
+  color:#c8a96e;margin-bottom:8px;
+}
+.identity p{
+  font-size:12px;line-height:1.7;color:rgba(224,221,214,.5);letter-spacing:.01em;
+}
+.identity .principle{
+  font-size:10px;font-style:italic;color:rgba(200,169,110,.45);
+  margin-top:12px;letter-spacing:.03em;
+}
+
+/* ── Team ── */
+.team{
+  display:flex;gap:10px;margin-top:clamp(20px,4dvh,32px);
+  width:100%;max-width:340px;z-index:1;
+  opacity:0;animation:fadeUp .6s ease .9s forwards;
+}
+.agent{
+  flex:1;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);
+  border-radius:14px;padding:12px 10px;text-align:center;
+}
+.agent-icon{font-size:18px}
+.agent-name{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#e0ddd6;margin-top:4px}
+.agent-role{font-size:8px;letter-spacing:.06em;color:rgba(224,221,214,.3);margin-top:2px}
+
+/* ── Essays section ── */
+.essays{
+  width:100%;max-width:340px;margin-top:clamp(20px,4dvh,32px);z-index:1;
+  opacity:0;animation:fadeUp .6s ease 1.1s forwards;
+}
+.essays-title{
+  font-size:8px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(200,169,110,.35);margin-bottom:10px;
+}
+.essay-link{
+  display:block;padding:12px 14px;border-radius:12px;
+  background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);
+  margin-bottom:8px;text-decoration:none;
+  transition:border-color .2s;-webkit-tap-highlight-color:transparent;
+}
+.essay-link:active{border-color:rgba(200,169,110,.25)}
+.essay-num{font-size:8px;letter-spacing:.12em;color:rgba(200,169,110,.3)}
+.essay-name{font-size:12px;font-weight:500;color:#e0ddd6;letter-spacing:.02em;margin-top:2px}
+.essay-sub{font-size:9px;color:rgba(224,221,214,.3);margin-top:3px;letter-spacing:.01em}
+
+/* ── Nav ── */
+.nav-row{
+  display:flex;gap:10px;margin-top:28px;flex-wrap:wrap;justify-content:center;z-index:1;
+  opacity:0;animation:fadeUp .5s ease 1.3s forwards;
+}
+.nav-pill{
+  font-size:10px;letter-spacing:.06em;color:#c8a96e;
+  text-decoration:none;padding:10px 18px;border-radius:999px;
+  border:1px solid rgba(200,169,110,.2);transition:border-color .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.nav-pill:active{border-color:rgba(200,169,110,.45)}
+
+.footer{
+  margin-top:auto;padding-top:24px;
+  font-size:8px;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(224,221,214,.08);text-align:center;z-index:1;
+  opacity:0;animation:fadeUp .4s ease 1.5s forwards;
+}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-delay:0s!important}}
+</style>
+</head>
+<body>
+
+<!-- ═══ PORTRAIT ═══ -->
+<div class="portrait">
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="cg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#c8a96e" stop-opacity=".3"/><stop offset="100%" stop-color="#c8a96e" stop-opacity="0"/></radialGradient>
+    <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c8a96e" stop-opacity="0"/><stop offset="50%" stop-color="#c8a96e" stop-opacity=".15"/><stop offset="100%" stop-color="#c8a96e" stop-opacity="0"/></linearGradient>
+    <filter id="gl"><feGaussianBlur stdDeviation="3" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
+  </defs>
+  <pattern id="gr" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(200,169,110,0.03)" stroke-width=".5"/></pattern>
+  <rect width="400" height="400" fill="url(#gr)"/>
+  <rect class="scan" x="120" y="170" width="160" height="60" fill="url(#sg)" rx="4"/>
+  <g class="orbit-outer">
+    <circle cx="200" cy="200" r="160" fill="none" stroke="rgba(200,169,110,0.06)" stroke-width=".8"/>
+    <circle cx="360" cy="200" r="2.5" fill="#c8a96e" opacity=".5"/>
+    <circle cx="200" cy="40" r="2" fill="#5a9e6f" opacity=".4"/>
+    <circle cx="40" cy="200" r="2" fill="#6a8fad" opacity=".4"/>
+    <circle cx="200" cy="360" r="1.8" fill="#8a6abf" opacity=".4"/>
+    <circle cx="313" cy="87" r="1.5" fill="#d4845a" opacity=".35"/>
+    <circle cx="87" cy="313" r="1.5" fill="#c8a96e" opacity=".3"/>
+  </g>
+  <g class="orbit-inner">
+    <circle cx="200" cy="200" r="110" fill="none" stroke="rgba(200,169,110,0.04)" stroke-width=".6" stroke-dasharray="4 8"/>
+    <circle cx="310" cy="200" r="2" fill="#c8a96e" opacity=".4"/>
+    <circle cx="200" cy="90" r="1.8" fill="#5a9e6f" opacity=".35"/>
+    <circle cx="90" cy="200" r="1.8" fill="#d4845a" opacity=".35"/>
+  </g>
+  <g opacity=".15">
+    <line x1="200" y1="68" x2="200" y2="78" stroke="#c8a96e" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="200" y1="322" x2="200" y2="332" stroke="#c8a96e" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="68" y1="200" x2="78" y2="200" stroke="#c8a96e" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="322" y1="200" x2="332" y2="200" stroke="#c8a96e" stroke-width="1.2" stroke-linecap="round"/>
+  </g>
+  <circle class="core-glow" cx="200" cy="200" r="52" fill="url(#cg)"/>
+  <polygon class="hex-ring" points="200,148 245,174 245,226 200,252 155,226 155,174" fill="none" stroke="#c8a96e" stroke-width="1.2" stroke-dasharray="280" filter="url(#gl)"/>
+  <polygon points="200,165 228,180 228,220 200,235 172,220 172,180" fill="rgba(200,169,110,0.04)" stroke="rgba(200,169,110,0.15)" stroke-width=".6"/>
+  <circle cx="200" cy="200" r="18" fill="none" stroke="#c8a96e" stroke-width="1" opacity=".6"/>
+  <circle cx="200" cy="200" r="4" fill="#c8a96e" opacity=".8"/>
+  <line x1="200" y1="182" x2="200" y2="190" stroke="#c8a96e" stroke-width="1" opacity=".5" stroke-linecap="round"/>
+  <line x1="200" y1="210" x2="200" y2="218" stroke="#c8a96e" stroke-width="1" opacity=".5" stroke-linecap="round"/>
+  <line x1="182" y1="200" x2="190" y2="200" stroke="#c8a96e" stroke-width="1" opacity=".5" stroke-linecap="round"/>
+  <line x1="210" y1="200" x2="218" y2="200" stroke="#c8a96e" stroke-width="1" opacity=".5" stroke-linecap="round"/>
+  <line x1="187" y1="187" x2="193" y2="193" stroke="#c8a96e" stroke-width=".8" opacity=".35" stroke-linecap="round"/>
+  <line x1="207" y1="187" x2="213" y2="193" stroke="#c8a96e" stroke-width=".8" opacity=".35" stroke-linecap="round"/>
+  <line x1="187" y1="213" x2="193" y2="207" stroke="#c8a96e" stroke-width=".8" opacity=".35" stroke-linecap="round"/>
+  <line x1="207" y1="213" x2="213" y2="207" stroke="#c8a96e" stroke-width=".8" opacity=".35" stroke-linecap="round"/>
+  <circle class="status-dot" cx="232" cy="168" r="3" fill="#4d9e6a"/>
+  <text x="239" y="171" font-size="7" font-family="ui-sans-serif,system-ui,sans-serif" fill="rgba(77,158,106,0.6)" letter-spacing=".08em">LIVE</text>
+  <circle class="sig" cx="320" cy="120" r="1.5" fill="#c8a96e" style="--dx:-100px;--dy:60px;animation-duration:4s;animation-delay:0s"/>
+  <circle class="sig" cx="80" cy="280" r="1.2" fill="#6a8fad" style="--dx:100px;--dy:-60px;animation-duration:4.5s;animation-delay:1.2s"/>
+  <circle class="sig" cx="300" cy="300" r="1.3" fill="#d4845a" style="--dx:-80px;--dy:-80px;animation-duration:5s;animation-delay:2s"/>
+  <circle class="sig" cx="100" cy="100" r="1.4" fill="#5a9e6f" style="--dx:80px;--dy:80px;animation-duration:4.2s;animation-delay:0.8s"/>
+  <circle class="sig" cx="340" cy="200" r="1.1" fill="#8a6abf" style="--dx:-120px;--dy:0px;animation-duration:3.8s;animation-delay:1.8s"/>
+  <circle class="sig" cx="200" cy="340" r="1.2" fill="#c8a96e" style="--dx:0px;--dy:-120px;animation-duration:4.8s;animation-delay:2.5s"/>
+  <text class="nm" x="200" y="288" text-anchor="middle" font-size="14" font-weight="700" font-family="ui-sans-serif,system-ui,sans-serif" fill="#c8a96e" letter-spacing=".2em">HELM</text>
+  <text class="nm" x="200" y="302" text-anchor="middle" font-size="7" font-family="ui-sans-serif,system-ui,sans-serif" fill="rgba(224,221,214,0.25)" letter-spacing=".18em">INTELLIGENCE CORE</text>
+  <path d="M30,50 L30,30 L50,30" fill="none" stroke="rgba(200,169,110,0.1)" stroke-width=".6"/>
+  <path d="M370,50 L370,30 L350,30" fill="none" stroke="rgba(200,169,110,0.1)" stroke-width=".6"/>
+  <path d="M30,350 L30,370 L50,370" fill="none" stroke="rgba(200,169,110,0.1)" stroke-width=".6"/>
+  <path d="M370,350 L370,370 L350,370" fill="none" stroke="rgba(200,169,110,0.1)" stroke-width=".6"/>
+  <text x="52" y="368" font-size="6" font-family="ui-monospace,monospace" fill="rgba(200,169,110,0.12)" letter-spacing=".05em">41.8781°N 87.6298°W</text>
+</svg>
+</div>
+
+<!-- ═══ IDENTITY ═══ -->
+<div class="identity">
+  <h2>Intelligence Core</h2>
+  <p>Helm is the orchestrator of a personal intelligence system built by Yemi (A.KEMBI). Every email, note, photo, and thought becomes a signal — classified, enriched, and connected to the arcs that define a life. Helm routes context, maintains institutional memory, and governs two sub-agents: Recon the builder and Dash the auditor.</p>
+  <div class="principle">"Signal flows to meaning — every hour, automatically."</div>
+</div>
+
+<!-- ═══ THE TEAM ═══ -->
+<div class="team">
+  <div class="agent">
+    <div class="agent-icon">⎈</div>
+    <div class="agent-name">Helm</div>
+    <div class="agent-role">Orchestrator</div>
+  </div>
+  <div class="agent">
+    <div class="agent-icon">🔨</div>
+    <div class="agent-name">Recon</div>
+    <div class="agent-role">Builder</div>
+  </div>
+  <div class="agent">
+    <div class="agent-icon">🛡</div>
+    <div class="agent-name">Dash</div>
+    <div class="agent-role">Auditor</div>
+  </div>
+</div>
+
+<!-- ═══ ESSAYS ═══ -->
+<div class="essays">
+  <div class="essays-title">Published Essays</div>
+  <a class="essay-link" href="helm_essay_01_signal_to_meaning.pdf">
+    <div class="essay-num">ESSAY 01</div>
+    <div class="essay-name">Signal to Meaning</div>
+    <div class="essay-sub">Why your data isn't intelligence yet</div>
+  </a>
+  <a class="essay-link" href="helm_essay_02_governance_over_convenience.pdf">
+    <div class="essay-num">ESSAY 02</div>
+    <div class="essay-name">Governance Over Convenience</div>
+    <div class="essay-sub">Why your AI agents need a constitution</div>
+  </a>
+  <a class="essay-link" href="helm_essay_03_the_auditor_doesnt_fix.pdf">
+    <div class="essay-num">ESSAY 03</div>
+    <div class="essay-name">The Auditor Doesn't Fix</div>
+    <div class="essay-sub">Lessons from a three-agent system</div>
+  </a>
+</div>
+
+<!-- ═══ NAV ═══ -->
+<div class="nav-row">
+  <a class="nav-pill" href="index.html">Dashboard</a>
+  <a class="nav-pill" href="architecture.html">Architecture</a>
+  <a class="nav-pill" href="myatlas.html">MyAtlas</a>
+  <a class="nav-pill" href="digest.html">Digest</a>
+  <a class="nav-pill" href="hypeboard.html">HypeBoard</a>
+</div>
+
+<div class="footer">Helm Intelligence · A.KEMBI · 2026</div>
+
+</body>
+</html>
