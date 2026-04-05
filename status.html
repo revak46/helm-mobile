@@ -71,6 +71,29 @@ body{
 .sl{display:flex;flex-direction:column;gap:6px}
 .si{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:10px 12px;font-size:12px;line-height:1.5}
 .st{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:3px}
+/* ── Ops Intel ── */
+.ops-summary{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:12px;line-height:1.6;margin-bottom:10px}
+.ops-ts{font-size:10px;color:var(--muted);margin-bottom:8px}
+.ops-row{display:flex;gap:8px;margin-bottom:8px}
+.ops-card{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.ops-card-title{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);margin-bottom:4px}
+.ops-card-val{font-size:13px;font-weight:500}
+.ops-card-sub{font-size:10px;color:var(--muted);margin-top:2px}
+.ops-finding{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:11px;line-height:1.5;margin-bottom:4px;display:flex;align-items:flex-start;gap:8px}
+.ops-sev{font-size:8px;font-weight:700;letter-spacing:.5px;padding:2px 5px;border-radius:3px;white-space:nowrap;margin-top:1px}
+.ops-sev.crit{background:rgba(210,60,50,0.15);color:#d44040}
+.ops-sev.warn{background:rgba(200,169,110,0.15);color:var(--accent)}
+.ops-sev.info{background:rgba(106,143,173,0.15);color:var(--cool)}
+.ops-svc{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:8px}
+.ops-svc-item{display:flex;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:10px}
+.ops-svc-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:6px;flex-shrink:0}
+.ops-svc-dot.up{background:#4d9e6a}.ops-svc-dot.down{background:#d44040}
+.ops-fx{background:var(--surface);border:1px solid var(--border);border-left:3px solid #d44040;border-radius:6px;padding:8px 10px;font-size:11px;line-height:1.4;margin-bottom:4px}
+.ops-fx-id{font-size:9px;font-weight:600;color:var(--muted)}
+.ops-fx-status{font-size:9px;color:#d44040;font-weight:500;margin-left:6px}
+.ops-decisions{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:11px;line-height:1.5;margin-top:8px;display:flex;align-items:center;gap:8px}
+.ops-decisions-count{font-size:20px;font-weight:600;color:var(--accent)}
+
 .ft{text-align:center;padding-top:16px;border-top:1px solid var(--border);margin-top:24px;font-size:10px;color:var(--muted);letter-spacing:.5px}
 .ld{text-align:center;padding:60px 20px;color:var(--muted)}
 .sp{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:s .8s linear infinite;margin-bottom:12px}
@@ -137,6 +160,56 @@ function render(d){
 
   const dg=d.digest?`<div class="dt">${esc(d.digest)}</div>`:'<div class="de">No digest yet</div>';
 
+  // ── Ops Intel ──
+  let opsHTML='';
+  const ops=d.ops_report;
+  if(ops){
+    const sevClass=s=>({CRITICAL:'crit',WARN:'warn',INFO:'info'}[s]||'info');
+
+    const dashCard=ops.dash?`<div class="ops-card">
+      <div class="ops-card-title">Dash</div>
+      <div class="ops-card-val">${esc(ops.dash.status||'—')}</div>
+      <div class="ops-card-sub">${esc(ops.dash.last_run||'')}</div>
+    </div>`:'';
+
+    const reconCard=ops.recon?`<div class="ops-card">
+      <div class="ops-card-title">Recon</div>
+      <div class="ops-card-val">${esc(ops.recon.rolling_avg||'—')}</div>
+      <div class="ops-card-sub">${esc(ops.recon.trust_level||'')}</div>
+    </div>`:'';
+
+    const findings=(ops.dash?.findings||[]).map(f=>
+      `<div class="ops-finding"><span class="ops-sev ${sevClass(f.severity)}">${esc(f.severity)}</span><span>${esc(f.text)}</span></div>`
+    ).join('');
+
+    const svcs=(ops.services||[]).map(s=>{
+      const up=(s.status||'').toUpperCase()==='UP'||(s.status||'').toUpperCase()==='OK';
+      return `<div class="ops-svc-item"><span class="ops-svc-dot ${up?'up':'down'}"></span>${esc(s.name)}${s.port?' :'+s.port:''}</div>`;
+    }).join('');
+
+    const fxs=(ops.fix_requests||[]).map(f=>
+      `<div class="ops-fx"><span class="ops-fx-id">${esc(f.id)}</span><span class="ops-fx-status">${esc(f.status)}</span><div>${esc(f.text)}</div></div>`
+    ).join('');
+
+    const decisions=ops.pending_decisions?`<div class="ops-decisions">
+      <span class="ops-decisions-count">${ops.pending_decisions}</span>
+      <span>${esc(ops.decisions_summary||'decisions awaiting approval')}</span>
+    </div>`:'';
+
+    const opsTs=ops.generated_at?`<div class="ops-ts">Updated ${new Date(ops.generated_at).toLocaleString()}</div>`:'';
+
+    opsHTML=`<div class="sec">
+      <div class="lbl">Ops Intel</div>
+      ${opsTs}
+      <div class="ops-summary">${esc(ops.summary||'')}</div>
+      <div class="ops-row">${dashCard}${reconCard}</div>
+      ${findings?`<div style="margin-bottom:8px">${findings}</div>`:''}
+      ${svcs?`<div class="ops-svc">${svcs}</div>`:''}
+      ${fxs||''}
+      ${decisions}
+    </div>`;
+  }
+
   a.innerHTML=`
     <div class="hdr"><h1>HELM</h1><span class="ts">${esc(d.time||'')}</span></div>
     <div class="date">${esc(d.date||'')}</div>
@@ -145,6 +218,7 @@ function render(d){
     ${(d.arcs||[]).length?`<div class="sec"><div class="lbl">Active Arcs</div><div class="al">${ar}</div></div>`:''}
     ${(d.suggestions||[]).length?`<div class="sec"><div class="lbl">Suggestions</div><div class="sl">${sg}</div></div>`:''}
     <div class="sec"><div class="lbl">Digest</div><div class="dc">${dg}</div></div>
+    ${opsHTML}
     <div class="ft">HELM INTELLIGENCE</div>
     ${navHTML()}`;
 }

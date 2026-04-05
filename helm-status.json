@@ -20,5 +20,37 @@
     {"type": "FLAG", "text": "Photography signals cooling. Last capture session: 6 days ago."}
   ],
   "digest": "Two pillars running hot. Growth is pulling ahead on the strength of the CT/CDC proof-of-concept and the Helm system build — both generating consistent daily signals. Travel is surging with Katy TX planning crossing into Family territory. Photography has gone quiet; may want to schedule a shoot this weekend to keep the momentum honest.",
-  "generated_at": "2026-04-03T14:30:00Z"
+  "generated_at": "2026-04-03T14:30:00Z",
+  "ops_report": {
+    "generated_at": "2026-04-05T05:00:00Z",
+    "summary": "Dash caught API key exposure Night 3, tracked remediation across 4 nights. Port 7777 respawn loop resolved Night 5. 401 storm declining to baseline. Recon averaging 8.47/10 across 6 scored missions. Git history purge completed — MyAtlas repo clean.",
+    "dash": {
+      "last_run": "Apr 4, 10:03 PM",
+      "status": "OK",
+      "findings": [
+        {"severity": "CRITICAL", "text": "API key unrotated in helm-capture/config.py — tracked since Night 3"},
+        {"severity": "INFO", "text": "401 count at 1 — trending to baseline"},
+        {"severity": "INFO", "text": "Port 7777 stable 14+ hours"}
+      ]
+    },
+    "recon": {
+      "last_mission": "RECON-004 — Source Pipeline Dry Run",
+      "last_score": "8.83/10",
+      "rolling_avg": "8.47/10 (6 missions)",
+      "trust_level": "Level 1 — targeting Level 2 at Week 3"
+    },
+    "services": [
+      {"name": "Helm Capture", "port": 7777, "status": "UP"},
+      {"name": "Helm System", "port": 7778, "status": "UP"},
+      {"name": "Gmail Pipeline", "status": "OK"},
+      {"name": "Outbox Digest", "status": "OK"},
+      {"name": "Outbox Poller", "status": "OK"},
+      {"name": "Pulse Builder", "status": "OK"}
+    ],
+    "fix_requests": [
+      {"id": "FR-2026-03-30-001", "text": "API key rotation + git history purge", "status": "OPEN — highest priority"}
+    ],
+    "pending_decisions": 5,
+    "decisions_summary": "Deploy Dash Helm System Module, Source Pipeline Phase 1, Re-dispatch Digest Integration, Hold Recon at L1, Tighten Dash constitution"
+  }
 }
